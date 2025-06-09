@@ -102,4 +102,4 @@ class Usuario(AbstractUser):
         return self.get_full_name() or self.username
         
     def get_absolute_url(self):
-        return reverse('usuario:detalhes', kwargs={'pk': self.pk})
+        return reverse('usuarios:detalhes', kwargs={'pk': self.pk})
