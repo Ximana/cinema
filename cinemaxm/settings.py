@@ -35,6 +35,8 @@ CLOUDINARY_STORAGE = {
     'SECURE': True,
 }
 
+STATICFILES_STORAGE = 'django.contrib.staticfiles.storage.StaticFilesStorage'
+
 # Configuração do storage padrão
 STORAGES = {
     # Storage para arquivos de MEDIA (uploads dos usuários)
