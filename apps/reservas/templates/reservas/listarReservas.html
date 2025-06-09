@@ -1,0 +1,436 @@
+{# apps/reservas/templates/reservas/listarReservas.html #}
+{% extends 'core/base.html' %}
+{% load static %}
+
+{% block title %}Reservas{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Cabeçalho -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="text-success mb-0">
+                <i class="fas fa-ticket-alt me-2"></i>Reservas
+            </h2>
+            <p class="text-muted">Gerenciamento de reservas do sistema</p>
+        </div>
+    </div>
+
+    <!-- Filtros e Busca -->
+    <div class="card shadow-sm mb-4">
+        <div class="card-body">
+            <form class="row g-3" method="GET">
+                <div class="col-md-3">
+                    <div class="input-group">
+                        <span class="input-group-text bg-success text-white">
+                            <i class="fas fa-search"></i>
+                        </span>
+                        <input 
+                            type="text" 
+                            class="form-control" 
+                            name="search"
+                            placeholder="Pesquisar reservas"
+                            value="{{ search_query }}"
+                        >
+                    </div>
+                </div>
+                <div class="col-md-2">
+                    <select name="status" class="form-select">
+                        <option value="">Todos Status</option>
+                        {% for status_value, status_label in status_choices %}
+                        <option value="{{ status_value }}" 
+                                {% if status_value == status_selecionado %}selected{% endif %}>
+                            {{ status_label }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <input 
+                        type="date" 
+                        class="form-control" 
+                        name="data_inicio"
+                        placeholder="Data Início"
+                        value="{{ data_inicio }}"
+                    >
+                </div>
+                <div class="col-md-2">
+                    <input 
+                        type="date" 
+                        class="form-control" 
+                        name="data_fim"
+                        placeholder="Data Fim"
+                        value="{{ data_fim }}"
+                    >
+                </div>
+                <div class="col-md-1">
+                    <button type="submit" class="btn btn-success w-100">
+                        <i class="fas fa-filter"></i>
+                    </button>
+                </div>
+                <div class="col-md-2">
+                    <a href="{% url 'reservas:lista' %}" class="btn btn-outline-secondary w-100">
+                        <i class="fas fa-times me-1"></i>Limpar
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Filtros Ativos -->
+    {% if search_query or status_selecionado or data_inicio or data_fim %}
+    <div class="row mb-3">
+        <div class="col-12">
+            <div class="d-flex align-items-center">
+                <span class="me-2 text-muted">Filtros ativos:</span>
+                
+                {% if search_query %}
+                <span class="badge bg-secondary me-2">
+                    Busca: {{ search_query }}
+                </span>
+                {% endif %}
+                
+                {% if status_selecionado %}
+                <span class="badge bg-secondary me-2">
+                    Status: 
+                    {% for status_value, status_label in status_choices %}
+                        {% if status_value == status_selecionado %}{{ status_label }}{% endif %}
+                    {% endfor %}
+                </span>
+                {% endif %}
+                
+                {% if data_inicio %}
+                <span class="badge bg-secondary me-2">
+                    De: {{ data_inicio }}
+                </span>
+                {% endif %}
+                
+                {% if data_fim %}
+                <span class="badge bg-secondary me-2">
+                    Até: {{ data_fim }}
+                </span>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Lista de Reservas -->
+    <div class="card shadow-sm">
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover mb-0">
+                    <thead>
+                        <tr class="bg-dark text-white">
+                            <th colspan="7" class="ps-3">
+                                Reservas
+                                <a href="#" class="float-end text-success me-3" data-bs-toggle="tooltip" data-bs-placement="top" title="Imprimir Lista de Reservas">
+                                    <i class="fas fa-print"></i>
+                                </a>
+                            </th>
+                        </tr>
+                        <tr class="bg-success text-white">
+                            <th scope="col" class="ps-3">#</th>
+                            <th scope="col">Cliente</th>
+                            <th scope="col">Filme</th>
+                            <th scope="col">Cinema/Sala</th>
+                            <th scope="col">Data/Hora</th>
+                            <th scope="col">Valor</th>
+                            <th scope="col">Status</th>
+                            <th scope="col" class="text-end pe-3">Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for reserva in reservas %}
+                        <tr>
+                            <td class="ps-3">
+                                <strong>#{{ reserva.pk }}</strong>
+                            </td>
+                            <td>
+                                <div class="d-flex align-items-center">
+                                    {% if reserva.usuario.foto_perfil %}
+                                        <img src="{{ reserva.usuario.foto_perfil.url }}" alt="{{ reserva.usuario.get_nome_completo }}" class="rounded-circle me-2" style="width: 35px; height: 35px; object-fit: cover;">
+                                    {% else %}
+                                        <div class="bg-success text-white rounded-circle me-2 d-flex align-items-center justify-content-center" style="width: 35px; height: 35px">
+                                            <i class="fas fa-user"></i>
+                                        </div>
+                                    {% endif %}
+                                    <div>
+                                        <div class="fw-bold">{{ reserva.usuario.get_nome_completo }}</div>
+                                        <small class="text-muted">{{ reserva.usuario.email }}</small>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>
+                                <div>
+                                    <div class="fw-bold">{{ reserva.sessao.filme.titulo }}</div>
+                                    <small class="text-muted">{{ reserva.sessao.get_tipo_display }} - {{ reserva.sessao.get_idioma_display }}</small>
+                                </div>
+                            </td>
+                            <td>
+                                <div>
+                                    <div class="fw-bold">{{ reserva.sessao.sala.cinema.nome }}</div>
+                                    <small class="text-muted">{{ reserva.sessao.sala.nome }}</small>
+                                </div>
+                            </td>
+                            <td>
+                                <div>
+                                    <div class="fw-bold">{{ reserva.sessao.horario|date:"d/m/Y" }}</div>
+                                    <small class="text-muted">{{ reserva.sessao.horario|date:"H:i" }}</small>
+                                </div>
+                            </td>
+                            <td>
+                                <strong class="text-success">{{ reserva.valor|floatformat:2 }} Kz</strong>
+                            </td>
+                            <td>
+                                <span class="badge {% if reserva.status == 'confirmada' %}bg-success{% elif reserva.status == 'pendente' %}bg-warning{% else %}bg-danger{% endif %}">
+                                    {{ reserva.get_status_display }}
+                                </span>
+                            </td>
+                            <td class="text-end pe-3">
+                                <button type="button"
+                                        class="btn btn-sm btn-outline-success"
+                                        onclick="verDetalhesReserva({{ reserva.pk }})"
+                                        data-bs-toggle="tooltip"
+                                        data-bs-placement="top"
+                                        title="Ver detalhes da reserva">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="8" class="text-center py-4">
+                                <div class="text-muted">
+                                    <i class="fas fa-ticket-alt fa-2x mb-3"></i>
+                                    <p>
+                                        {% if search_query %}
+                                            Nenhuma reserva encontrada para "{{ search_query }}".
+                                        {% else %}
+                                            Nenhuma reserva cadastrada.
+                                        {% endif %}
+                                    </p>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Paginação -->
+    {% if is_paginated %}
+    <nav class="mt-4">
+        <ul class="pagination justify-content-center">
+            {% if page_obj.has_previous %}
+            <li class="page-item">
+                <a class="page-link text-success" href="?page={{ page_obj.previous_page_number }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.status %}&status={{ request.GET.status }}{% endif %}{% if request.GET.data_inicio %}&data_inicio={{ request.GET.data_inicio }}{% endif %}{% if request.GET.data_fim %}&data_fim={{ request.GET.data_fim }}{% endif %}">
+                    <i class="fas fa-chevron-left"></i>
+                </a>
+            </li>
+            {% endif %}
+
+            {% for num in page_obj.paginator.page_range %}
+            {% if page_obj.number == num %}
+            <li class="page-item active">
+                <span class="page-link bg-success border-success">{{ num }}</span>
+            </li>
+            {% else %}
+            <li class="page-item">
+                <a class="page-link text-success" href="?page={{ num }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.status %}&status={{ request.GET.status }}{% endif %}{% if request.GET.data_inicio %}&data_inicio={{ request.GET.data_inicio }}{% endif %}{% if request.GET.data_fim %}&data_fim={{ request.GET.data_fim }}{% endif %}">{{ num }}</a>
+            </li>
+            {% endif %}
+            {% endfor %}
+
+            {% if page_obj.has_next %}
+            <li class="page-item">
+                <a class="page-link text-success" href="?page={{ page_obj.next_page_number }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.status %}&status={{ request.GET.status }}{% endif %}{% if request.GET.data_inicio %}&data_inicio={{ request.GET.data_inicio }}{% endif %}{% if request.GET.data_fim %}&data_fim={{ request.GET.data_fim }}{% endif %}">
+                    <i class="fas fa-chevron-right"></i>
+                </a>
+            </li>
+            {% endif %}
+        </ul>
+    </nav>
+    {% endif %}
+</div>
+
+<!-- Modal Detalhes da Reserva -->
+<div class="modal fade" id="modalDetalhesReserva" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header bg-success text-white">
+                <h5 class="modal-title">
+                    <i class="fas fa-ticket-alt me-2"></i>Detalhes da Reserva
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body" id="conteudoDetalhes">
+                <div class="text-center py-4">
+                    <div class="spinner-border text-success" role="status">
+                        <span class="visually-hidden">Carregando...</span>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block scriptJS %}
+<script>
+// Função para ver detalhes da reserva
+function verDetalhesReserva(reservaId) {
+    // Abrir modal
+    const modal = new bootstrap.Modal(document.getElementById('modalDetalhesReserva'));
+    modal.show();
+    
+    // Resetar conteúdo
+    document.getElementById('conteudoDetalhes').innerHTML = `
+        <div class="text-center py-4">
+            <div class="spinner-border text-success" role="status">
+                <span class="visually-hidden">Carregando...</span>
+            </div>
+        </div>
+    `;
+    
+    // Fazer requisição AJAX
+    fetch(`/reservas/detalhes/${reservaId}/`)
+        .then(response => response.json())
+        .then(data => {
+            document.getElementById('conteudoDetalhes').innerHTML = `
+                <div class="row g-4">
+                    <!-- Informações da Reserva -->
+                    <div class="col-12">
+                        <div class="card border-success">
+                            <div class="card-header bg-light">
+                                <h6 class="mb-0">
+                                    <i class="fas fa-info-circle me-2"></i>Informações da Reserva
+                                </h6>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <p><strong>Número:</strong> #${data.id}</p>
+                                        <p><strong>Data da Reserva:</strong> ${data.data_hora_reserva}</p>
+                                        <p><strong>Valor Total:</strong> <span class="text-success fw-bold">${data.valor} Kz</span></p>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <p><strong>Status:</strong> 
+                                            <span class="badge bg-${data.status_class}">${data.status}</span>
+                                        </p>
+                                        <p><strong>Total de Ingressos:</strong> ${data.total_ingressos}</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Informações do Cliente -->
+                    <div class="col-md-6">
+                        <div class="card border-primary">
+                            <div class="card-header bg-light">
+                                <h6 class="mb-0">
+                                    <i class="fas fa-user me-2"></i>Cliente
+                                </h6>
+                            </div>
+                            <div class="card-body">
+                                <div class="d-flex align-items-center mb-3">
+                                    ${data.usuario.foto_perfil ? 
+                                        `<img src="${data.usuario.foto_perfil}" alt="Foto" class="rounded-circle me-3" style="width: 50px; height: 50px; object-fit: cover;">` :
+                                        `<div class="bg-primary text-white rounded-circle me-3 d-flex align-items-center justify-content-center" style="width: 50px; height: 50px">
+                                            <i class="fas fa-user"></i>
+                                        </div>`
+                                    }
+                                    <div>
+                                        <h6 class="mb-0">${data.usuario.nome}</h6>
+                                        <small class="text-muted">${data.usuario.email}</small>
+                                    </div>
+                                </div>
+                                <p class="mb-0"><strong>Telefone:</strong> ${data.usuario.telefone}</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Informações da Sessão -->
+                    <div class="col-md-6">
+                        <div class="card border-info">
+                            <div class="card-header bg-light">
+                                <h6 class="mb-0">
+                                    <i class="fas fa-film me-2"></i>Sessão
+                                </h6>
+                            </div>
+                            <div class="card-body">
+                                <p><strong>Filme:</strong> ${data.sessao.filme}</p>
+                                <p><strong>Cinema:</strong> ${data.sessao.cinema}</p>
+                                <p><strong>Sala:</strong> ${data.sessao.sala}</p>
+                                <p><strong>Horário:</strong> ${data.sessao.horario}</p>
+                                <p class="mb-0"><strong>Tipo:</strong> ${data.sessao.tipo} - ${data.sessao.idioma}</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Ingressos -->
+                    <div class="col-12">
+                        <div class="card border-warning">
+                            <div class="card-header bg-light">
+                                <h6 class="mb-0">
+                                    <i class="fas fa-tickets-alt me-2"></i>Ingressos
+                                </h6>
+                            </div>
+                            <div class="card-body">
+                                <div class="table-responsive">
+                                    <table class="table table-sm">
+                                        <thead>
+                                            <tr class="bg-light">
+                                                <th>Número</th>
+                                                <th>Preço</th>
+                                                <th>Desconto</th>
+                                                <th>Status</th>
+                                                <th>Emissão</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            ${data.ingressos.map(ingresso => `
+                                                <tr>
+                                                    <td><strong>${ingresso.numero}</strong></td>
+                                                    <td>${ingresso.preco} Kz</td>
+                                                    <td>${ingresso.tipo_desconto}</td>
+                                                    <td><span class="badge bg-info">${ingresso.status}</span></td>
+                                                    <td>${ingresso.data_emissao}</td>
+                                                </tr>
+                                            `).join('')}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        })
+        .catch(error => {
+            console.error('Erro:', error);
+            document.getElementById('conteudoDetalhes').innerHTML = `
+                <div class="alert alert-danger">
+                    <i class="fas fa-exclamation-triangle me-2"></i>
+                    Erro ao carregar detalhes da reserva.
+                </div>
+            `;
+        });
+}
+
+// Inicializar tooltips
+document.addEventListener('DOMContentLoaded', function() {
+    var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+    var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+        return new bootstrap.Tooltip(tooltipTriggerEl)
+    });
+});
+</script>
+{% endblock %}

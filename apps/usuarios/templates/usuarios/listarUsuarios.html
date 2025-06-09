@@ -1,0 +1,260 @@
+{# apps/usuarios/templates/usuarios/listarUsuarios.html #}
+{% extends 'core/base.html' %}
+{% load static %}
+
+{% block title %}Usuários{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Cabeçalho -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="text-success mb-0">
+                <i class="fas fa-users me-2"></i>Usuários
+            </h2>
+            <p class="text-muted">Gerenciamento de usuários do sistema</p>
+        </div>
+        <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#modalAdicionarUsuario">
+            <i class="fas fa-user-plus me-2"></i>Novo Usuário
+        </button>
+    </div>
+
+    <!-- Filtros e Busca -->
+    <div class="card shadow-sm mb-4">
+        <div class="card-body">
+            <form class="row g-3" action="{% url 'usuarios:lista' %}" method="GET">
+                <div class="col-md-4">
+                    <div class="input-group">
+                        <span class="input-group-text bg-success text-white">
+                            <i class="fas fa-search"></i>
+                        </span>
+                        <input 
+                            type="text" 
+                            class="form-control" 
+                            name="search"
+                            placeholder="Pesquisar usuários"
+                            value="{{ search_query }}"
+                        >
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <select name="tipo_usuario" class="form-select">
+                        <option value="">Todos Tipos</option>
+                        {% for tipo, label in form.fields.tipo.choices %}
+                        <option value="{{ tipo }}" 
+                                {% if tipo == tipo_usuario_selecionado %}selected{% endif %}>
+                            {{ label }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <select name="status" class="form-select">
+                        <option value="">Todos Status</option>
+                        <option value="ativo" {% if status_selecionado == 'ativo' %}selected{% endif %}>Ativos</option>
+                        <option value="inativo" {% if status_selecionado == 'inativo' %}selected{% endif %}>Inativos</option>
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <button type="submit" class="btn btn-success w-100">
+                        <i class="fas fa-filter me-2"></i>Filtrar
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Filtros Ativos -->
+    {% if search_query or tipo_usuario_selecionado or status_selecionado %}
+    <div class="row mb-3">
+        <div class="col-12">
+            <div class="d-flex align-items-center">
+                <span class="me-2 text-muted">Filtros ativos:</span>
+                
+                {% if search_query %}
+                <span class="badge bg-secondary me-2">
+                    Busca: {{ search_query }}
+                    <a href="{% url 'usuarios:lista' %}" class="text-white ms-1">
+                        <i class="fas fa-times-circle"></i>
+                    </a>
+                </span>
+                {% endif %}
+                
+                {% if tipo_usuario_selecionado %}
+                <span class="badge bg-secondary me-2">
+                    Tipo: 
+                    {% for tipo, label in form.fields.tipo.choices %}
+                        {% if tipo == tipo_usuario_selecionado %}{{ label }}{% endif %}
+                    {% endfor %}
+                    <a href="{% url 'usuarios:lista' %}" class="text-white ms-1">
+                        <i class="fas fa-times-circle"></i>
+                    </a>
+                </span>
+                {% endif %}
+                
+                {% if status_selecionado %}
+                <span class="badge bg-secondary me-2">
+                    Status: {{ status_selecionado|capfirst }}
+                    <a href="{% url 'usuarios:lista' %}" class="text-white ms-1">
+                        <i class="fas fa-times-circle"></i>
+                    </a>
+                </span>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Lista de Usuários -->
+    <div class="card shadow-sm">
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover mb-0">
+                    <thead>
+                        <tr class="bg-dark text-white">
+                            <th colspan="7" class="ps-3">
+                                Usuários
+                                <a href="" class="float-end text-success me-3" data-bs-toggle="tooltip" data-bs-placement="top" title="Imprimir Lista de Usuários">
+                                    <i class="fas fa-print"></i>
+                                </a>
+                            </th>
+                        </tr>
+                        <tr class="bg-success text-white">
+                            <th scope="col" class="ps-3">Nome</th>
+                            <th scope="col">Tipo de Usuário</th>
+                            <th scope="col">E-mail</th>
+                            <th scope="col">Telefone</th>
+                            <th scope="col">Status</th>
+                            <th scope="col" class="text-end pe-3">Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for usuario in usuarios %}
+                        <tr>
+                            <td class="ps-3">
+                                <div class="d-flex align-items-center">
+                                    {% if usuario.foto_perfil %}
+                                        <img src="{{ usuario.foto_perfil.url }}" alt="{{ usuario.get_nome_completo }}" class="rounded-circle me-2" style="width: 40px; height: 40px; object-fit: cover;">
+                                    {% else %}
+                                        <div class="bg-success text-white rounded-circle me-2 d-flex align-items-center justify-content-center" style="width: 40px; height: 40px">
+                                            <i class="fas fa-user"></i>
+                                        </div>
+                                    {% endif %}
+                                    <div>
+                                        <div class="fw-bold">{{ usuario.get_nome_completo }}</div>
+                                        <small class="text-muted">Usuário #{{ usuario.pk }}</small>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>{{ usuario.get_tipo_display }}</td>
+                            <td>{{ usuario.email|default:"-" }}</td>
+                            <td>{{ usuario.telefone|default:"-" }}</td>
+                            <td>
+                                <span class="badge {% if usuario.is_active %}bg-success{% else %}bg-danger{% endif %}">
+                                    {{ usuario.is_active|yesno:"Ativo,Inativo" }}
+                                </span>
+                            </td>
+                            <td class="text-end pe-3">
+                                <div class="btn-group">
+                                    <a href="{% url 'usuarios:detalhes' pk=usuario.pk %}" 
+                                       class="btn btn-sm btn-outline-success"
+                                       data-bs-toggle="tooltip"
+                                       data-bs-placement="top"
+                                       title="Ver detalhes do usuário">
+                                        <i class="fas fa-eye"></i>
+                                    </a>
+                                    <button type="button"
+                                            class="btn btn-sm btn-outline-danger"
+                                            onclick="confirmarRemocao('{{ usuario.get_nome_completo }}', '{% url 'usuarios:remover' usuario.pk %}')"
+                                            data-bs-toggle="tooltip"
+                                            data-bs-placement="top"
+                                            title="Remover usuário">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="6" class="text-center py-4">
+                                <div class="text-muted">
+                                    <i class="fas fa-users fa-2x mb-3"></i>
+                                    <p>
+                                        {% if search_query %}
+                                            Nenhum usuário encontrado para "{{ search_query }}".
+                                            <a href="{% url 'usuarios:lista' %}" class="btn btn-sm btn-outline-secondary ml-2">
+                                                Limpar pesquisa
+                                            </a>
+                                        {% else %}
+                                            Nenhum usuário cadastrado.
+                                        {% endif %}
+                                    </p>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Paginação -->
+    {% if is_paginated %}
+    <nav class="mt-4">
+        <ul class="pagination justify-content-center">
+            {% if page_obj.has_previous %}
+            <li class="page-item">
+                <a class="page-link text-success" href="?page={{ page_obj.previous_page_number }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}">
+                    <i class="fas fa-chevron-left"></i>
+                </a>
+            </li>
+            {% endif %}
+
+            {% for num in page_obj.paginator.page_range %}
+            {% if page_obj.number == num %}
+            <li class="page-item active">
+                <span class="page-link bg-success border-success">{{ num }}</span>
+            </li>
+            {% else %}
+            <li class="page-item">
+                <a class="page-link text-success" href="?page={{ num }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}">{{ num }}</a>
+            </li>
+            {% endif %}
+            {% endfor %}
+
+            {% if page_obj.has_next %}
+            <li class="page-item">
+                <a class="page-link text-success" href="?page={{ page_obj.next_page_number }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}">
+                    <i class="fas fa-chevron-right"></i>
+                </a>
+            </li>
+            {% endif %}
+        </ul>
+    </nav>
+    {% endif %}
+</div>
+
+<!-- Modal Adicionar Usuário -->
+{% include 'usuarios/adicionarModal.html' %}
+
+<!-- Modal Remover Usuário -->
+{% include 'usuarios/removerModal.html' %}
+
+{% endblock %}
+
+{% block scriptJS %}
+<script>
+// Função para confirmar remoção do usuário
+function confirmarRemocao(nome, url) {
+    // Atualiza o nome do usuário no modal
+    document.getElementById('usuarioNome').textContent = nome;
+    
+    // Atualiza o action do formulário com a URL correta
+    document.getElementById('formRemover').action = url;
+    
+    // Abre o modal
+    new bootstrap.Modal(document.getElementById('modalRemover')).show();
+}
+</script>
+{% endblock %}

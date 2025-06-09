@@ -1,0 +1,23 @@
+<!-- Modal Remover Sala -->
+<div class="modal fade" id="modalRemoverSala{{ sala.id }}" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Remover Sala</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <p>Você realmente deseja remover a sala <strong>{{ sala.nome }}</strong>?</p>
+          <p class="text-danger">Esta ação não pode ser desfeita e removerá também todas as sessões associadas a esta sala.</p>
+          
+          <form method="POST" action="{% comment %}{% url 'administracao:sala_remover' pk=sala.pk %}{% endcomment %}">
+            {% csrf_token %}
+            <div class="d-flex justify-content-end">
+              <button type="button" class="btn btn-secondary me-2" data-bs-dismiss="modal">Cancelar</button>
+              <button type="submit" class="btn btn-danger">Confirmar Remoção</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>

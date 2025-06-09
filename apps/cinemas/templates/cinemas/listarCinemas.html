@@ -1,0 +1,454 @@
+<!--apps/cinemas/templates/cinemas/listarCinemas.html-->
+{% extends 'core/base.html' %}
+{% load static %}
+
+{% block title %}Cinemas - CinemaManager{% endblock %}
+
+{% block arquivos_css %}
+    <!-- Estilos adicionais para o mapa de assentos -->
+    <style>
+        .sala-container {
+        display: flex;
+        margin-top: 20px;
+        }
+        
+        .fileiras-container {
+        display: flex;
+        flex-direction: column;
+        justify-content: space-around;
+        margin-right: 10px;
+        }
+        
+        .fileira-label {
+        height: 40px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: bold;
+        color: #666;
+        }
+        
+        .assentos-container {
+        flex-grow: 1;
+        }
+        
+        .fileira {
+        display: flex;
+        justify-content: center;
+        margin-bottom: 10px;
+        }
+        
+        .assento {
+        width: 35px;
+        height: 35px;
+        margin: 0 5px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 5px;
+        cursor: pointer;
+        font-size: 0.8rem;
+        transition: all 0.2s ease;
+        }
+        
+        .assento-disponivel {
+        background-color: #e9ecef;
+        border: 1px solid #ced4da;
+        }
+        
+        .assento-selecionado {
+        background-color: #28a745;
+        color: white;
+        border: 1px solid #28a745;
+        }
+        
+        .assento-ocupado {
+        background-color: #dc3545;
+        color: white;
+        border: 1px solid #dc3545;
+        cursor: not-allowed;
+        }
+        
+        .assento-vip {
+        background-color: #ffc107;
+        border: 1px solid #ffc107;
+        }
+        
+        .assento-disabled {
+        background-color: #868e96;
+        color: #dee2e6;
+        border: 1px solid #868e96;
+        cursor: not-allowed;
+        opacity: 0.5;
+        }
+        
+        .screen-representation {
+        width: 80%;
+        max-width: 400px;
+        margin: 0 auto;
+        text-align: center;
+        border-radius: 5px;
+        font-size: 1.2rem;
+        letter-spacing: 5px;
+        }
+        
+        .seat-legend {
+        display: inline-block;
+        width: 20px;
+        height: 20px;
+        border-radius: 3px;
+        vertical-align: middle;
+        }
+        
+        .seat-available {
+        background-color: #e9ecef;
+        border: 1px solid #ced4da;
+        }
+        
+        .seat-selected {
+        background-color: #28a745;
+        border: 1px solid #28a745;
+        }
+        
+        .seat-occupied {
+        background-color: #dc3545;
+        border: 1px solid #dc3545;
+        }
+        
+        .seat-vip {
+        background-color: #ffc107;
+        border: 1px solid #ffc107;
+        }
+        
+        .seat-disabled {
+        background-color: #868e96;
+        border: 1px solid #868e96;
+        opacity: 0.5;
+        }
+    </style>
+{% endblock %}
+
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Cabeçalho -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="text-success mb-0">
+                <i class="fas fa-building me-2"></i>Cinemas
+            </h2>
+            <p class="text-muted">Gerenciamento de cinemas</p>
+        </div>
+        <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#modalAdicionar">
+            <i class="fas fa-plus me-2"></i>Novo Cinema
+        </button>
+    </div>
+
+    <!-- Filtros e Busca -->
+    <div class="card shadow-sm mb-4">
+        <div class="card-body">
+            <form class="row g-3" action="{% url 'cinemas:lista' %}" method="GET">
+                <div class="col-md-10">
+                    <div class="input-group">
+                        <span class="input-group-text bg-success text-white">
+                            <i class="fas fa-search"></i>
+                        </span>
+                        <input 
+                            type="text" 
+                            class="form-control" 
+                            name="search"
+                            placeholder="Pesquisar por nome ou localização"
+                            value="{{ search_query }}"
+                        >
+                    </div>
+                </div>
+                <div class="col-md-2">
+                    <button type="submit" class="btn btn-success w-100">
+                        <i class="fas fa-search me-2"></i>Buscar
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Lista de Cinemas -->
+    <div class="card shadow-sm">
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover mb-0">
+                    <thead>
+                        <tr class="bg-dark text-white">
+                            <th colspan="4" class="ps-3">
+                                Cinemas
+                                <a href="" class="float-end text-success me-3" data-bs-toggle="tooltip" data-bs-placement="top" title="Imprimir Lista de Cinemas">
+                                    <i class="fas fa-print"></i>
+                                </a>
+                            </th>
+                        </tr>
+                        <tr class="bg-success text-white">
+                            <th scope="col" class="ps-3">Nome</th>
+                            <th scope="col">Localização</th>
+                            <th scope="col">Telefone</th>
+                            <th scope="col" class="text-end pe-3">Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for cinema in cinemas %}
+                        <tr>
+                            <td class="ps-3">
+                                <div class="d-flex align-items-center">
+                                    <div class="bg-success text-white rounded-circle me-2 d-flex align-items-center justify-content-center" style="width: 40px; height: 40px">
+                                        <i class="fas fa-building"></i>
+                                    </div>
+                                    <div>
+                                        <div class="fw-bold">{{ cinema.nome }}</div>
+                                        <small class="text-muted">Cinema #{{ cinema.pk }}</small>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>{{ cinema.localizacao }}</td>
+                            <td>{{ cinema.telefone }}</td>
+                            <td class="text-end pe-3">
+                                <div class="btn-group">
+                                    <a href="{% url 'cinemas:detalhes' pk=cinema.pk %}" 
+                                       class="btn btn-sm btn-outline-success"
+                                       data-bs-toggle="tooltip"
+                                       data-bs-placement="top"
+                                       title="Ver detalhes do cinema">
+                                        <i class="fas fa-eye"></i>
+                                    </a>
+                                    <button type="button"
+                                            class="btn btn-sm btn-outline-danger"
+                                            onclick="confirmarRemocao('{{ cinema.nome }}', '{% url 'cinemas:remover' cinema.pk %}')"
+                                            data-bs-toggle="tooltip"
+                                            data-bs-placement="top"
+                                            title="Remover cinema">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="4" class="text-center py-4">
+                                <div class="text-muted">
+                                    <i class="fas fa-building fa-2x mb-3"></i>
+                                    <p>
+                                        {% if search_query %}
+                                            Nenhum cinema encontrado para "{{ search_query }}".
+                                            <a href="{% url 'cinemas:lista' %}" class="btn btn-sm btn-outline-secondary ml-2">
+                                                Limpar pesquisa
+                                            </a>
+                                        {% else %}
+                                            Nenhum cinema cadastrado.
+                                        {% endif %}
+                                    </p>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Paginação -->
+    {% if is_paginated %}
+    <nav class="mt-4">
+        <ul class="pagination justify-content-center">
+            {% if page_obj.has_previous %}
+            <li class="page-item">
+                <a class="page-link text-success" href="?page={{ page_obj.previous_page_number }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}">
+                    <i class="fas fa-chevron-left"></i>
+                </a>
+            </li>
+            {% endif %}
+
+            {% for num in page_obj.paginator.page_range %}
+            {% if page_obj.number == num %}
+            <li class="page-item active">
+                <span class="page-link bg-success border-success">{{ num }}</span>
+            </li>
+            {% else %}
+            <li class="page-item">
+                <a class="page-link text-success" href="?page={{ num }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}">{{ num }}</a>
+            </li>
+            {% endif %}
+            {% endfor %}
+
+            {% if page_obj.has_next %}
+            <li class="page-item">
+                <a class="page-link text-success" href="?page={{ page_obj.next_page_number }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}">
+                    <i class="fas fa-chevron-right"></i>
+                </a>
+            </li>
+            {% endif %}
+        </ul>
+    </nav>
+    {% endif %}
+</div>
+
+<!-- Modal Adicionar Cinema -->
+{% include 'cinemas/adicionarModal.html' %}
+
+<!-- Modal Remover Cinema -->
+{% include 'cinemas/removerModal.html' %}
+
+
+{% endblock %}
+
+{% block scriptJS %}
+<script>
+// Script para gerenciar modais e interações
+document.addEventListener('DOMContentLoaded', function() {
+    // Inicializar tooltips
+    var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+    var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+        return new bootstrap.Tooltip(tooltipTriggerEl)
+    });
+
+    // Referência ao modal
+    const modal = document.getElementById('modalAdicionar');
+    const modalInstance = new bootstrap.Modal(modal);
+    
+    // Se houver erros no formulário, mostra o modal
+    {% if form.errors %}
+        modalInstance.show();
+    {% endif %}
+    
+    // Limpa o formulário quando o modal for fechado
+    modal.addEventListener('hidden.bs.modal', function () {
+        // Não reseta o formulário se houver erros, para manter os valores inseridos
+        {% if not form.errors %}
+            const form = modal.querySelector('form');
+            form.reset();
+            // Remove as mensagens de erro
+            const invalidFeedbacks = form.querySelectorAll('.invalid-feedback');
+            invalidFeedbacks.forEach(feedback => feedback.remove());
+            const invalidInputs = form.querySelectorAll('.is-invalid');
+            invalidInputs.forEach(input => input.classList.remove('is-invalid'));
+            // Remove o alerta de erro se existir
+            const alertError = form.querySelector('.alert-danger');
+            if (alertError) alertError.remove();
+        {% endif %}
+    });
+    
+    // Adiciona tratamento para mensagens de sucesso
+    {% if messages %}
+        const messages = document.querySelectorAll('.alert:not(.alert-danger)');
+        messages.forEach(message => {
+            setTimeout(() => {
+                message.style.transition = 'opacity 0.5s ease';
+                message.style.opacity = '0';
+                setTimeout(() => message.remove(), 500);
+            }, 3000);
+        });
+    {% endif %}
+
+    // Código para a pesquisa
+    const searchForm = document.querySelector('form[method="GET"]');
+    if (searchForm) {
+        const searchInput = searchForm.querySelector('input[name="search"]');
+        
+        // Limpa a pesquisa quando o campo estiver vazio
+        searchInput.addEventListener('input', function(e) {
+            if (this.value.trim() === '' && window.location.search) {
+                window.location.href = window.location.pathname;
+            }
+        });
+        
+        // Previne submissão do formulário se o campo estiver vazio
+        searchForm.addEventListener('submit', function(e) {
+            if (searchInput.value.trim() === '') {
+                e.preventDefault();
+                window.location.href = window.location.pathname;
+            }
+        });
+    }
+});
+
+// Função para confirmar remoção
+function confirmarRemocao(nome, url) {
+    const modal = document.getElementById('modalRemover');
+    const modalInstance = new bootstrap.Modal(modal);
+    const nomeElement = document.getElementById('cinemaNome');
+    const formElement = document.getElementById('formRemover');
+    
+    nomeElement.textContent = nome;
+    formElement.action = url;
+    
+    modalInstance.show();
+}
+
+// Funcao para carregar os assentos
+function carregarAssentos(salaId) {
+    const mapaAssentos = document.getElementById('mapa-assentos');
+    
+    // Em uma implementação real, substituiria por uma chamada AJAX
+    // Aqui estamos apenas simulando a visualização para exemplo
+    
+    // Exemplo simples para demonstração
+    let assentosHTML = '<div class="sala-container">';
+    assentosHTML += '<div class="fileiras-container">';
+    
+    // Gerar fileiras de A a F
+    const fileiras = ['A', 'B', 'C', 'D', 'E', 'F'];
+    
+    fileiras.forEach(fileira => {
+      assentosHTML += `<div class="fileira-label">${fileira}</div>`;
+    });
+    
+    assentosHTML += '</div>';
+    assentosHTML += '<div class="assentos-container">';
+    
+    // Para cada fileira, gerar 12 assentos
+    fileiras.forEach(fileira => {
+      assentosHTML += `<div class="fileira" data-fileira="${fileira}">`;
+      
+      for (let i = 1; i <= 12; i++) {
+        // Distribuir alguns assentos especiais aleatoriamente
+        const tipoAssento = Math.random() > 0.85 ? 'vip' : 
+                          Math.random() > 0.9 ? 'ocupado' : 
+                          Math.random() > 0.95 ? 'disabled' : 'disponivel';
+        
+        assentosHTML += `<div class="assento assento-${tipoAssento}" data-fileira="${fileira}" data-numero="${i}">
+          ${i}
+        </div>`;
+      }
+      
+      assentosHTML += '</div>';
+    });
+    
+    assentosHTML += '</div></div>';
+    
+    // Adicionar ao DOM
+    mapaAssentos.innerHTML = assentosHTML;
+    
+    // Adicionar evento de clique para simular seleção de assento
+    const assentos = document.querySelectorAll('.assento-disponivel');
+    assentos.forEach(assento => {
+      assento.addEventListener('click', function() {
+        this.classList.toggle('assento-selecionado');
+      });
+    });
+  }
+  
+  // Inicializar o modal para visualizar assentos
+  const modalVisualizarAssentos = document.getElementById('modalVisualizarAssentos');
+  if (modalVisualizarAssentos) {
+    modalVisualizarAssentos.addEventListener('show.bs.modal', function (event) {
+      const button = event.relatedTarget;
+      const salaId = button.getAttribute('data-sala-id');
+      const salaNome = button.getAttribute('data-sala-nome');
+      
+      const modalTitle = this.querySelector('.modal-title');
+      modalTitle.textContent = `Assentos - ${salaNome}`;
+      
+      // Carregar os assentos
+      carregarAssentos(salaId);
+    });
+  }
+
+</script>
+{% endblock %}

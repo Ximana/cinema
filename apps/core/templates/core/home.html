@@ -1,0 +1,57 @@
+<!--apps/core/teamplates/core/home.html -->
+{% extends 'core/base.html' %}
+{% load static %}
+
+{% block title %}Home{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <h1>Ola mundo</h1>
+
+    <a class="nav-link" href="{% url 'usuarios:logout' %}">
+        <i class="fas fa-sign-in-alt"></i>Sair
+    </a>
+
+    <a class="nav-link" href="{% url 'usuarios:login' %}">
+        <i class="fas fa-sign-in-alt"></i>Login Admin
+    </a>
+
+    
+
+    {% if user.is_authenticated %}
+    <div class="d-flex align-items-center">
+        <div class="bg-success text-white rounded-circle d-flex align-items-center justify-content-center" 
+             style="width: 32px; height: 32px">
+          <i class="fas fa-user-md"></i>
+        </div>
+        <span class="ms-2 d-none d-lg-inline">{{ user.get_nome_completo }}</span>
+      </div>
+      
+    <a class="nav-link" href="{% comment %}{% url 'usuarios:logout' %}{% endcomment %}">
+        <i class="fas fa-sign-in-alt"></i>Sair
+    </a>
+
+    {% else %}
+    <a class="nav-link" href="{% comment %}{% url 'usuarios:login' %}{% endcomment %}">
+        <i class="fas fa-sign-in-alt"></i>Login Admin
+    </a>
+
+    <a class="nav-link" href="{% comment %}{% url 'usuarios:login' %}{% endcomment %}">
+        <i class="fas fa-sign-in-alt"></i>Login Cliente
+    </a>
+
+    <a class="nav-link" href="">
+        <i class="fas fa-sign-in-alt"></i>Criar Conta
+    </a>
+    {% endif %}
+    
+</div>
+{% endblock %}
+
+
+{% block scriptJS %}
+<script>
+
+    
+</script>
+{% endblock %}

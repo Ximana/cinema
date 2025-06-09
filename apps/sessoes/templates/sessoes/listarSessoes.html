@@ -1,0 +1,317 @@
+{# apps/sessoes/templates/sessoes/listarSessoes.html #}
+{% extends 'core/base.html' %}
+{% load static %}
+
+{% block title %}Sessões{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Cabeçalho -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="text-success mb-0">
+                <i class="fas fa-film me-2"></i>Sessões
+            </h2>
+            <p class="text-muted">Gerenciamento de sessões do sistema</p>
+        </div>
+    </div>
+
+    <!-- Filtros e Busca -->
+    <div class="card shadow-sm mb-4">
+        <div class="card-body">
+            <form class="row g-3" method="GET">
+                <div class="col-md-3">
+                    <div class="input-group">
+                        <span class="input-group-text bg-success text-white">
+                            <i class="fas fa-search"></i>
+                        </span>
+                        <input 
+                            type="text" 
+                            class="form-control" 
+                            name="search"
+                            placeholder="Pesquisar sessões"
+                            value="{{ search_query }}"
+                        >
+                    </div>
+                </div>
+                <div class="col-md-2">
+                    <select name="tipo" class="form-select">
+                        <option value="">Todos os Tipos</option>
+                        {% for tipo_value, tipo_label in tipo_choices %}
+                        <option value="{{ tipo_value }}" 
+                                {% if tipo_value == tipo_selecionado %}selected{% endif %}>
+                            {{ tipo_label }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <select name="idioma" class="form-select">
+                        <option value="">Todos os Idiomas</option>
+                        {% for idioma_value, idioma_label in idioma_choices %}
+                        <option value="{{ idioma_value }}" 
+                                {% if idioma_value == idioma_selecionado %}selected{% endif %}>
+                            {{ idioma_label }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <input 
+                        type="date" 
+                        class="form-control" 
+                        name="data_inicio"
+                        placeholder="Data Início"
+                        value="{{ data_inicio }}"
+                    >
+                </div>
+                <div class="col-md-2">
+                    <input 
+                        type="date" 
+                        class="form-control" 
+                        name="data_fim"
+                        placeholder="Data Fim"
+                        value="{{ data_fim }}"
+                    >
+                </div>
+                <div class="col-md-1">
+                    <button type="submit" class="btn btn-success w-100">
+                        <i class="fas fa-filter"></i>
+                    </button>
+                </div>
+            </form>
+            <div class="row mt-2">
+                <div class="col-md-11"></div>
+                <div class="col-md-1">
+                    <a href="{% url 'sessoes:lista' %}" class="btn btn-outline-secondary w-100">
+                        <i class="fas fa-times me-1"></i>Limpar
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Filtros Ativos -->
+    {% if search_query or tipo_selecionado or idioma_selecionado or data_inicio or data_fim %}
+    <div class="row mb-3">
+        <div class="col-12">
+            <div class="d-flex align-items-center">
+                <span class="me-2 text-muted">Filtros ativos:</span>
+                
+                {% if search_query %}
+                <span class="badge bg-secondary me-2">
+                    Busca: {{ search_query }}
+                </span>
+                {% endif %}
+                
+                {% if tipo_selecionado %}
+                <span class="badge bg-secondary me-2">
+                    Tipo: 
+                    {% for tipo_value, tipo_label in tipo_choices %}
+                        {% if tipo_value == tipo_selecionado %}{{ tipo_label }}{% endif %}
+                    {% endfor %}
+                </span>
+                {% endif %}
+                
+                {% if idioma_selecionado %}
+                <span class="badge bg-secondary me-2">
+                    Idioma: 
+                    {% for idioma_value, idioma_label in idioma_choices %}
+                        {% if idioma_value == idioma_selecionado %}{{ idioma_label }}{% endif %}
+                    {% endfor %}
+                </span>
+                {% endif %}
+                
+                {% if data_inicio %}
+                <span class="badge bg-secondary me-2">
+                    De: {{ data_inicio }}
+                </span>
+                {% endif %}
+                
+                {% if data_fim %}
+                <span class="badge bg-secondary me-2">
+                    Até: {{ data_fim }}
+                </span>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Lista de Sessões -->
+    <div class="card shadow-sm">
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover mb-0">
+                    <thead>
+                        <tr class="bg-dark text-white">
+                            <th colspan="8" class="ps-3">
+                                Sessões
+                                <a href="#" class="float-end text-success me-3" data-bs-toggle="tooltip" data-bs-placement="top" title="Imprimir Lista de Sessões">
+                                    <i class="fas fa-print"></i>
+                                </a>
+                            </th>
+                        </tr>
+                        <tr class="bg-success text-white">
+                            <th scope="col" class="ps-3">#</th>
+                            <th scope="col">Filme</th>
+                            <th scope="col">Cinema/Sala</th>
+                            <th scope="col">Data/Horário</th>
+                            <th scope="col">Tipo</th>
+                            <th scope="col">Idioma</th>
+                            <th scope="col">Preço Base</th>
+                            <th scope="col" class="text-end pe-3">Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for sessao in sessoes %}
+                        <tr>
+                            <td class="ps-3">
+                                <strong>#{{ sessao.pk }}</strong>
+                            </td>
+                            <td>
+                                <div class="d-flex align-items-center">
+                                    {% if sessao.filme.poster %}
+                                        <img src="{{ sessao.filme.poster.url }}" alt="{{ sessao.filme.titulo }}" class="rounded me-2" style="width: 35px; height: 50px; object-fit: cover;">
+                                    {% else %}
+                                        <div class="bg-success text-white rounded me-2 d-flex align-items-center justify-content-center" style="width: 35px; height: 50px">
+                                            <i class="fas fa-film"></i>
+                                        </div>
+                                    {% endif %}
+                                    <div>
+                                        <div class="fw-bold">{{ sessao.filme.titulo }}</div>
+                                        <small class="text-muted">{{ sessao.filme.duracao_minutos }} min</small>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>
+                                <div>
+                                    <div class="fw-bold">{{ sessao.sala.cinema.nome }}</div>
+                                    <small class="text-muted">{{ sessao.sala.nome }}</small>
+                                </div>
+                            </td>
+                            <td>
+                                <div>
+                                    <div class="fw-bold">{{ sessao.horario|date:"d/m/Y" }}</div>
+                                    <small class="text-muted">{{ sessao.horario|date:"H:i" }}</small>
+                                </div>
+                            </td>
+                            <td>
+                                <span class="badge {% if sessao.tipo == '3d' %}bg-primary{% elif sessao.tipo == 'imax' %}bg-warning text-dark{% else %}bg-info{% endif %}">
+                                    {{ sessao.get_tipo_display }}
+                                </span>
+                            </td>
+                            <td>
+                                <span class="badge {% if sessao.idioma == 'dublado' %}bg-secondary{% else %}bg-dark{% endif %}">
+                                    {{ sessao.get_idioma_display }}
+                                </span>
+                            </td>
+                            <td>
+                                <strong class="text-success">{{ sessao.preco_base|floatformat:2 }} Kz</strong>
+                            </td>
+                            <td class="text-end pe-3">
+                                <a href="{% url 'sessoes:detalhes' pk=sessao.pk %}" 
+                                       class="btn btn-sm btn-outline-success"
+                                       data-bs-toggle="tooltip"
+                                       data-bs-placement="top"
+                                       title="Ver detalhes da sessão">
+                                        <i class="fas fa-eye"></i>
+                                    </a>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="8" class="text-center py-4">
+                                <div class="text-muted">
+                                    <i class="fas fa-film fa-2x mb-3"></i>
+                                    <p>
+                                        {% if search_query %}
+                                            Nenhuma sessão encontrada para "{{ search_query }}".
+                                        {% else %}
+                                            Nenhuma sessão cadastrada.
+                                        {% endif %}
+                                    </p>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Paginação -->
+    {% if is_paginated %}
+    <nav class="mt-4">
+        <ul class="pagination justify-content-center">
+            {% if page_obj.has_previous %}
+            <li class="page-item">
+                <a class="page-link text-success" href="?page={{ page_obj.previous_page_number }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.tipo %}&tipo={{ request.GET.tipo }}{% endif %}{% if request.GET.idioma %}&idioma={{ request.GET.idioma }}{% endif %}{% if request.GET.data_inicio %}&data_inicio={{ request.GET.data_inicio }}{% endif %}{% if request.GET.data_fim %}&data_fim={{ request.GET.data_fim }}{% endif %}">
+                    <i class="fas fa-chevron-left"></i>
+                </a>
+            </li>
+            {% endif %}
+
+            {% for num in page_obj.paginator.page_range %}
+            {% if page_obj.number == num %}
+            <li class="page-item active">
+                <span class="page-link bg-success border-success">{{ num }}</span>
+            </li>
+            {% else %}
+            <li class="page-item">
+                <a class="page-link text-success" href="?page={{ num }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.tipo %}&tipo={{ request.GET.tipo }}{% endif %}{% if request.GET.idioma %}&idioma={{ request.GET.idioma }}{% endif %}{% if request.GET.data_inicio %}&data_inicio={{ request.GET.data_inicio }}{% endif %}{% if request.GET.data_fim %}&data_fim={{ request.GET.data_fim }}{% endif %}">{{ num }}</a>
+            </li>
+            {% endif %}
+            {% endfor %}
+
+            {% if page_obj.has_next %}
+            <li class="page-item">
+                <a class="page-link text-success" href="?page={{ page_obj.next_page_number }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.tipo %}&tipo={{ request.GET.tipo }}{% endif %}{% if request.GET.idioma %}&idioma={{ request.GET.idioma }}{% endif %}{% if request.GET.data_inicio %}&data_inicio={{ request.GET.data_inicio }}{% endif %}{% if request.GET.data_fim %}&data_fim={{ request.GET.data_fim }}{% endif %}">
+                    <i class="fas fa-chevron-right"></i>
+                </a>
+            </li>
+            {% endif %}
+        </ul>
+    </nav>
+    {% endif %}
+</div>
+
+<!-- Modal Detalhes da Sessão -->
+<div class="modal fade" id="modalDetalhesSessao" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header bg-success text-white">
+                <h5 class="modal-title">
+                    <i class="fas fa-film me-2"></i>Detalhes da Sessão
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body" id="conteudoDetalhesSessao">
+                <div class="text-center py-4">
+                    <div class="spinner-border text-success" role="status">
+                        <span class="visually-hidden">Carregando...</span>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block scriptJS %}
+<script>
+
+// Inicializar tooltips
+document.addEventListener('DOMContentLoaded', function() {
+    var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+    var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+        return new bootstrap.Tooltip(tooltipTriggerEl)
+    });
+});
+</script>
+{% endblock %}

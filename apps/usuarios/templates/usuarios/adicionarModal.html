@@ -1,0 +1,216 @@
+<!-- apps/usuarios/templates/usuarios/AdicionarModal.html -->
+<div
+  class="modal fade"
+  id="modalAdicionarUsuario"
+  tabindex="-1"
+  aria-labelledby="modalAdicionarUsuarioLabel"
+  aria-hidden="true"
+  data-bs-backdrop="static"
+>
+  <div class="modal-dialog modal-dialog-scrollable modal-dialog-centered modal-xl">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="modalAdicionarUsuarioLabel">
+          Adicionar Novo Usuário
+        </h5>
+        <button
+          type="button"
+          class="btn-close"
+          data-bs-dismiss="modal"
+          aria-label="Close"
+        ></button>
+      </div>
+      <div class="modal-body">
+        <form class="row" method="POST" enctype="multipart/form-data">
+          {% csrf_token %}
+          
+          <div class="col-md-6">
+            <!-- Dados Pessoais -->
+            <div class="form-group mb-3">
+              <label for="first_name">Nome</label>
+              <input
+                type="text"
+                class="form-control {% if form.first_name.errors %}is-invalid{% endif %}"
+                id="first_name"
+                name="first_name"
+                value="{{ form.first_name.value|default:'' }}"
+                required
+              />
+              {% if form.first_name.errors %}
+                <div class="invalid-feedback">{{ form.first_name.errors|first }}</div>
+              {% endif %}
+            </div>
+
+            <div class="form-group mb-3">
+              <label for="last_name">Sobrenome</label>
+              <input
+                type="text"
+                class="form-control {% if form.last_name.errors %}is-invalid{% endif %}"
+                id="last_name"
+                name="last_name"
+                value="{{ form.last_name.value|default:'' }}"
+                required
+              />
+              {% if form.last_name.errors %}
+                <div class="invalid-feedback">{{ form.last_name.errors|first }}</div>
+              {% endif %}
+            </div>
+
+            <div class="form-group mb-3">
+              <label for="username">Nome de Usuário</label>
+              <input
+                type="text"
+                class="form-control {% if form.username.errors %}is-invalid{% endif %}"
+                id="username"
+                name="username"
+                value="{{ form.username.value|default:'' }}"
+                required
+              />
+              {% if form.username.errors %}
+                <div class="invalid-feedback">{{ form.username.errors|first }}</div>
+              {% endif %}
+            </div>
+
+            <div class="form-group mb-3">
+              <label for="email">E-mail</label>
+              <input
+                type="email"
+                class="form-control {% if form.email.errors %}is-invalid{% endif %}"
+                id="email"
+                name="email"
+                value="{{ form.email.value|default:'' }}"
+                required
+              />
+              {% if form.email.errors %}
+                <div class="invalid-feedback">{{ form.email.errors|first }}</div>
+              {% endif %}
+            </div>
+
+            <div class="form-group mb-3">
+              <label for="tipo">Tipo de Usuário</label>
+              <select 
+                class="form-select {% if form.tipo.errors %}is-invalid{% endif %}" 
+                id="tipo" 
+                name="tipo"
+                required
+              >
+                <option value="">Selecione um tipo...</option>
+                {% for tipo, label in form.fields.tipo.choices %}
+                  <option value="{{ tipo }}" {% if form.tipo.value == tipo %}selected{% endif %}>
+                    {{ label }}
+                  </option>
+                {% endfor %}
+              </select>
+              {% if form.tipo.errors %}
+                <div class="invalid-feedback">{{ form.tipo.errors|first }}</div>
+              {% endif %}
+            </div>
+          </div>
+
+          <div class="col-md-6">
+            <div class="row">
+              <div class="col-12 form-group mb-3">
+                <label for="telefone">Telefone</label>
+                <input
+                  type="text"
+                  class="form-control {% if form.telefone.errors %}is-invalid{% endif %}"
+                  id="telefone"
+                  name="telefone"
+                  value="{{ form.telefone.value|default:'' }}"
+                  placeholder="(+244) 9XX-XXX-XXX"
+                />
+                {% if form.telefone.errors %}
+                  <div class="invalid-feedback">{{ form.telefone.errors|first }}</div>
+                {% endif %}
+              </div>
+
+              <div class="col-12 form-group mb-3">
+                <label for="numero_bi">Número do BI</label>
+                <input
+                  type="text"
+                  class="form-control {% if form.numero_bi.errors %}is-invalid{% endif %}"
+                  id="numero_bi"
+                  name="numero_bi"
+                  value="{{ form.numero_bi.value|default:'' }}"
+                  placeholder="XXX-XXX-XXX-XXX"
+                />
+                {% if form.numero_bi.errors %}
+                  <div class="invalid-feedback">{{ form.numero_bi.errors|first }}</div>
+                {% endif %}
+              </div>
+
+              <div class="col-12 form-group mb-3">
+                <label for="data_nascimento">Data de Nascimento</label>
+                <input
+                  type="date"
+                  class="form-control {% if form.data_nascimento.errors %}is-invalid{% endif %}"
+                  id="data_nascimento"
+                  name="data_nascimento"
+                  value="{{ form.data_nascimento.value|default:'' }}"
+                />
+                {% if form.data_nascimento.errors %}
+                  <div class="invalid-feedback">{{ form.data_nascimento.errors|first }}</div>
+                {% endif %}
+              </div>
+
+              <div class="col-12 form-group mb-3">
+                <label for="foto_perfil">Foto de Perfil</label>            
+                <input             
+                  type="file"             
+                  class="form-control {% if form.foto_perfil.errors %}is-invalid{% endif %}"             
+                  id="foto_perfil"             
+                  name="foto_perfil" 
+                  accept="image/*"           
+                >            
+                {% if form.foto_perfil.errors %}
+                  <div class="invalid-feedback">{{ form.foto_perfil.errors|first }}</div>
+                {% endif %}
+              </div>
+
+              <div class="col-12 form-group mb-3">
+                <label for="password1">Senha</label>
+                <input
+                  type="password"
+                  class="form-control {% if form.password1.errors %}is-invalid{% endif %}"
+                  id="password1"
+                  name="password1"
+                  required
+                />
+                {% if form.password1.errors %}
+                  <div class="invalid-feedback">{{ form.password1.errors|first }}</div>
+                {% endif %}
+              </div>
+
+              <div class="col-12 form-group mb-3">
+                <label for="password2">Confirmar Senha</label>
+                <input
+                  type="password"
+                  class="form-control {% if form.password2.errors %}is-invalid{% endif %}"
+                  id="password2"
+                  name="password2"
+                  required
+                />
+                {% if form.password2.errors %}
+                  <div class="invalid-feedback">{{ form.password2.errors|first }}</div>
+                {% endif %}
+              </div>
+            </div>
+          </div>
+
+          <div class="modal-footer mt-3">
+            <button
+              type="button"
+              class="btn btn-secondary btn-sm"
+              data-bs-dismiss="modal"
+            >
+              Fechar
+            </button>
+            <button type="submit" class="btn btn-success btn-sm">
+              Adicionar Usuário
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>

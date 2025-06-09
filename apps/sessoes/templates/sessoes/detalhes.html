@@ -1,0 +1,458 @@
+{% extends 'core/base.html' %}
+
+{% block title %}Detalhes da Sessão - {{ sessao.filme.titulo }}{% endblock %}
+
+{% block arquivos_css %}
+<style>
+    .nav-tabs .nav-link {
+        color: #198754;
+        border: none;
+        margin-right: 1rem;
+        padding: 0.8rem 1.5rem;
+        transition: all 0.3s ease;
+        border-radius: 0.5rem;
+    }
+    
+    .nav-tabs .nav-link:hover {
+        background-color: #e8f5e9;
+    }
+    
+    .nav-tabs .nav-link.active {
+        color: white;
+        background-color: #198754;
+        border: none;
+    }
+    
+    .session-header {
+        border-radius: 1rem;
+        padding: 2rem;
+        margin-bottom: 2rem;
+    }
+    
+    .movie-poster {
+        width: 120px;
+        height: 180px;
+        border-radius: 0.8rem;
+        object-fit: cover;
+        box-shadow: 0 8px 25px rgba(0,0,0,0.2);
+    }
+    
+    .info-card {
+        background: white;
+        border-radius: 1rem;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+        padding: 1.5rem;
+        height: 100%;
+        transition: all 0.3s ease;
+    }
+    
+    .info-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 16px rgba(0,0,0,0.1);
+    }
+    
+    .stat-card {
+        background: white;
+        border-radius: 1rem;
+        padding: 1.5rem;
+        text-align: center;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+        transition: all 0.3s ease;
+        border-left: 4px solid;
+    }
+    
+    .stat-card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 6px 16px rgba(0,0,0,0.1);
+    }
+    
+    .stat-card.ocupacao { border-left-color: #198754; }
+    .stat-card.receita { border-left-color: #fd7e14; }
+    .stat-card.reservas { border-left-color: #0d6efd; }
+    .stat-card.ingressos { border-left-color: #6f42c1; }
+    
+    .stat-number {
+        font-size: 2rem;
+        font-weight: bold;
+        margin-bottom: 0.5rem;
+    }
+    
+    .stat-label {
+        color: #6c757d;
+        font-size: 0.9rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+    
+    .progress-custom {
+        height: 12px;
+        border-radius: 10px;
+        background-color: #e9ecef;
+    }
+    
+    .progress-bar-custom {
+        background: linear-gradient(90deg, #198754, #20c997);
+        border-radius: 10px;
+    }
+    
+    .badge-3d { background-color: #dc3545; }
+    .badge-2d { background-color: #198754; }
+    .badge-imax { background-color: #6f42c1; }
+    .badge-legendado { background-color: #0d6efd; }
+    .badge-dublado { background-color: #fd7e14; }
+    
+    .table-card {
+        border-radius: 1rem;
+        border: none;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+        overflow: hidden;
+    }
+    
+    .status-pendente { color: #fd7e14; }
+    .status-confirmada { color: #198754; }
+    .status-cancelada { color: #dc3545; }
+    .status-emitido { color: #0d6efd; }
+    .status-utilizado { color: #198754; }
+    
+    .info-label {
+        color: #6c757d;
+        font-size: 0.9rem;
+        margin-bottom: 0.3rem;
+    }
+    
+    .info-value {
+        color: #2c3e50;
+        font-weight: 500;
+        font-size: 1.1rem;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <!-- Cabeçalho da Sessão -->
+    <div class="session-header bg-white text-dark">
+        <div class="row align-items-center">
+            <div class="col-md-2 text-center">
+                {% if sessao.filme.poster %}
+                    <img src="{{ sessao.filme.poster.url }}" class="movie-poster" alt="{{ sessao.filme.titulo }}">
+                {% else %}
+                    <div class="movie-poster bg-white bg-opacity-25 d-flex align-items-center justify-content-center">
+                        <i class="fas fa-film fa-3x text-white"></i>
+                    </div>
+                {% endif %}
+            </div>
+            <div class="col-md-8">
+                <h1 class="mb-2">{{ sessao.filme.titulo }}</h1>
+                <p class="mb-3 opacity-75">{{ sessao.filme.sinopse|truncatewords:20 }}</p>
+                <div class="d-flex flex-wrap gap-2 mb-3">
+                    <span class="badge badge-{{ sessao.tipo }} fs-6">{{ sessao.get_tipo_display }}</span>
+                    <span class="badge badge-{{ sessao.idioma }} fs-6">{{ sessao.get_idioma_display }}</span>
+                    <span class="badge bg-primary  fs-6">{{ sessao.filme.classificacao }}</span>
+                    <span class="badge bg-primary  fs-6">{{ sessao.filme.duracao_minutos }} min</span>
+                </div>
+                <div class="row g-3">
+                    <div class="col-sm-6">
+                        <div class="info-label ">Cinema</div>
+                        <div class="info-value ">{{ sessao.sala.cinema.nome }}</div>
+                    </div>
+                    <div class="col-sm-6">
+                        <div class="info-label ">Sala</div>
+                        <div class="info-value ">{{ sessao.sala.nome }}</div>
+                    </div>
+                    <div class="col-sm-6">
+                        <div class="info-label">Data e Horário</div>
+                        <div class="info-value ">{{ sessao.horario|date:"d/m/Y às H:i" }}</div>
+                    </div>
+                    <div class="col-sm-6">
+                        <div class="info-label">Preço Base</div>
+                        <div class="info-value">{{ sessao.preco_base }} Kz</div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-2 text-end">
+                <button class="btn btn-outline-success mb-2 w-100">
+                    <i class="fas fa-edit me-2"></i>Editar Sessão
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Estatísticas -->
+    <div class="row g-4 mb-4">
+        <div class="col-md-3">
+            <div class="stat-card ocupacao">
+                <div class="stat-number text-success">{{ percentual_ocupacao|floatformat:1 }}%</div>
+                <div class="stat-label">Taxa de Ocupação</div>
+                <div class="progress-custom mt-3">
+                    <div class="progress-bar-custom" style="width: {{ percentual_ocupacao }}%"></div>
+                </div>
+                <div class="small text-muted mt-2">{{ lugares_ocupados }}/{{ capacidade_total }} lugares</div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="stat-card receita">
+                <div class="stat-number text-warning">{{ receita_total|floatformat:0 }}</div>
+                <div class="stat-label">Receita Total (Kz)</div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="stat-card reservas">
+                <div class="stat-number text-primary">{{ total_reservas }}</div>
+                <div class="stat-label">Total de Reservas</div>
+                <div class="small text-muted mt-2">
+                    {{ reservas_confirmadas }} confirmadas, {{ reservas_pendentes }} pendentes
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="stat-card ingressos">
+                <div class="stat-number text-purple">{{ ingressos_vendidos }}</div>
+                <div class="stat-label">Ingressos Vendidos</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tabs -->
+    <ul class="nav nav-tabs border-0 mb-4" id="sessaoTabs" role="tablist">
+        <li class="nav-item" role="presentation">
+            <button class="nav-link active" id="detalhes-tab" data-bs-toggle="tab" 
+                    data-bs-target="#detalhes" type="button" role="tab">
+                <i class="fas fa-info-circle me-2"></i>Detalhes do Filme
+            </button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" id="reservas-tab" data-bs-toggle="tab" 
+                    data-bs-target="#reservas" type="button" role="tab">
+                <i class="fas fa-calendar-check me-2"></i>Reservas ({{ total_reservas }})
+            </button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" id="ingressos-tab" data-bs-toggle="tab" 
+                    data-bs-target="#ingressos" type="button" role="tab">
+                <i class="fas fa-ticket-alt me-2"></i>Ingressos ({{ ingressos_vendidos }})
+            </button>
+        </li>
+    </ul>
+
+    <div class="tab-content" id="sessaoTabsContent">
+        <!-- Detalhes do Filme -->
+        <div class="tab-pane fade show active" id="detalhes" role="tabpanel">
+            <div class="row g-4">
+                <div class="col-md-8">
+                    <div class="info-card">
+                        <h5 class="text-success mb-3">Sinopse</h5>
+                        <p class="text-muted">{{ sessao.filme.sinopse }}</p>
+                        
+                        {% if sessao.filme.trailer_oficial_url %}
+                        <div class="mt-4">
+                            <h6 class="text-success mb-2">Trailer Oficial</h6>
+                            <a href="{{ sessao.filme.trailer_oficial_url }}" target="_blank" class="btn btn-outline-success">
+                                <i class="fas fa-play me-2"></i>Assistir Trailer
+                            </a>
+                        </div>
+                        {% endif %}
+                        
+                        {% if sessao.filme.site_oficial %}
+                        <div class="mt-3">
+                            <h6 class="text-success mb-2">Site Oficial</h6>
+                            <a href="{{ sessao.filme.site_oficial }}" target="_blank" class="btn btn-outline-success">
+                                <i class="fas fa-external-link-alt me-2"></i>Visitar Site
+                            </a>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="info-card">
+                        <h5 class="text-success mb-3">Informações Técnicas</h5>
+                        <div class="mb-3">
+                            <div class="info-label">Diretor</div>
+                            <div class="info-value">{{ sessao.filme.diretor }}</div>
+                        </div>
+                        <div class="mb-3">
+                            <div class="info-label">Gênero</div>
+                            <div class="info-value">{{ sessao.filme.genero }}</div>
+                        </div>
+                        <div class="mb-3">
+                            <div class="info-label">Duração</div>
+                            <div class="info-value">{{ sessao.filme.duracao_minutos }} minutos</div>
+                        </div>
+                        <div class="mb-3">
+                            <div class="info-label">Classificação</div>
+                            <div class="info-value">{{ sessao.filme.classificacao }}</div>
+                        </div>
+                        <div class="mb-3">
+                            <div class="info-label">Data de Lançamento</div>
+                            <div class="info-value">{{ sessao.filme.data_lancamento|date:"d/m/Y" }}</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Reservas -->
+        <div class="tab-pane fade" id="reservas" role="tabpanel">
+            <div class="table-card">
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0">
+                        <thead class="table-success">
+                            <tr>
+                                <th>Usuário</th>
+                                <th>Data da Reserva</th>
+                                <th>Valor Total</th>
+                                <th>Status</th>
+                                <th>Ingressos</th>
+                                <th>Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for reserva in reservas %}
+                            <tr>
+                                <td class="align-middle">
+                                    <div>
+                                        <strong>{{ reserva.usuario.get_full_name|default:reserva.usuario.username }}</strong>
+                                        <div class="small text-muted">{{ reserva.usuario.email }}</div>
+                                    </div>
+                                </td>
+                                <td class="align-middle">{{ reserva.data_hora_reserva|date:"d/m/Y H:i" }}</td>
+                                <td class="align-middle">{{ reserva.valor }} Kz</td>
+                                <td class="align-middle">
+                                    <span class="badge bg-{{ reserva.status|yesno:'success,warning,danger' }} status-{{ reserva.status }}">
+                                        {{ reserva.get_status_display }}
+                                    </span>
+                                </td>
+                                <td class="align-middle">
+                                    <span class="badge bg-secondary">{{ reserva.ingressos.count }} ingresso{{ reserva.ingressos.count|pluralize }}</span>
+                                </td>
+                                <td class="align-middle">
+                                    <div class="btn-group">
+                                        <button class="btn btn-outline-success btn-sm" data-bs-toggle="tooltip" title="Ver detalhes">
+                                            <i class="fas fa-eye"></i>
+                                        </button>
+                                        {% if reserva.status == 'pendente' %}
+                                        <button class="btn btn-outline-primary btn-sm" data-bs-toggle="tooltip" title="Confirmar">
+                                            <i class="fas fa-check"></i>
+                                        </button>
+                                        {% endif %}
+                                    </div>
+                                </td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="6" class="text-center py-4">
+                                    <i class="fas fa-calendar-times text-muted fa-2x mb-3"></i>
+                                    <p class="text-muted">Nenhuma reserva encontrada para esta sessão.</p>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Ingressos -->
+        <div class="tab-pane fade" id="ingressos" role="tabpanel">
+            <div class="table-card">
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0">
+                        <thead class="table-success">
+                            <tr>
+                                <th>Número</th>
+                                <th>Usuário</th>
+                                <th>Preço</th>
+                                <th>Desconto</th>
+                                <th>Assentos</th>
+                                <th>Status</th>
+                                <th>Data de Emissão</th>
+                                <th>Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for ingresso in ingressos %}
+                            <tr>
+                                <td class="align-middle">
+                                    <code>{{ ingresso.numero }}</code>
+                                </td>
+                                <td class="align-middle">
+                                    <div>
+                                        <strong>{{ ingresso.reserva.usuario.get_full_name|default:ingresso.reserva.usuario.username }}</strong>
+                                        <div class="small text-muted">{{ ingresso.reserva.usuario.email }}</div>
+                                    </div>
+                                </td>
+                                <td class="align-middle">{{ ingresso.preco }} Kz</td>
+                                <td class="align-middle">
+                                    {% if ingresso.desconto %}
+                                        <span class="badge bg-info">{{ ingresso.get_tipo_desconto_display }}</span>
+                                    {% else %}
+                                        <span class="text-muted">Sem desconto</span>
+                                    {% endif %}
+                                </td>
+                                <td class="align-middle">
+                                    <span class="badge bg-secondary">{{ ingresso.assentos }}</span>
+                                </td>
+                                <td class="align-middle">
+                                    <span class="badge bg-{{ ingresso.status|yesno:'primary,success,danger' }} status-{{ ingresso.status }}">
+                                        {{ ingresso.get_status_display }}
+                                    </span>
+                                </td>
+                                <td class="align-middle">{{ ingresso.data_emissao|date:"d/m/Y H:i" }}</td>
+                                <td class="align-middle">
+                                    <div class="btn-group">
+                                        <button class="btn btn-outline-success btn-sm" data-bs-toggle="tooltip" title="Visualizar ingresso">
+                                            <i class="fas fa-file-pdf"></i>
+                                        </button>
+                                        {% if ingresso.status == 'emitido' %}
+                                        <button class="btn btn-outline-warning btn-sm" data-bs-toggle="tooltip" title="Marcar como utilizado">
+                                            <i class="fas fa-check-circle"></i>
+                                        </button>
+                                        {% endif %}
+                                    </div>
+                                </td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="8" class="text-center py-4">
+                                    <i class="fas fa-ticket-alt text-muted fa-2x mb-3"></i>
+                                    <p class="text-muted">Nenhum ingresso emitido para esta sessão.</p>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scriptJS %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Manter a aba ativa após o recarregamento
+        const activeTab = localStorage.getItem('activeSessaoTab');
+        if (activeTab) {
+            const tabTrigger = document.querySelector(`[data-bs-target="${activeTab}"]`);
+            if (tabTrigger) {
+                tabTrigger.click();
+            }
+        }
+        
+        // Salvar a aba ativa quando o usuário clicar em uma aba
+        const tabs = document.querySelectorAll('button[data-bs-toggle="tab"]');
+        tabs.forEach(tab => {
+            tab.addEventListener('shown.bs.tab', function(event) {
+                localStorage.setItem('activeSessaoTab', event.target.getAttribute('data-bs-target'));
+            });
+        });
+        
+        // Inicializar tooltips
+        const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+        tooltipTriggerList.map(function (tooltipTriggerEl) {
+            return new bootstrap.Tooltip(tooltipTriggerEl);
+        });
+    });
+</script>
+{% endblock %}

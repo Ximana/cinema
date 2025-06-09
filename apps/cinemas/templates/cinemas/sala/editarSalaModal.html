@@ -1,0 +1,31 @@
+<!-- Modal Editar Sala -->
+<div class="modal fade" id="modalEditarSala{{ sala.id }}" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Editar Sala - {{ sala.nome }}</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <form method="POST" action="{% comment %}{% url 'administracao:sala_editar' pk=sala.pk %}{% endcomment %}">
+            {% csrf_token %}
+            
+            <div class="mb-3">
+              <label for="sala-nome-{{ sala.id }}" class="form-label">Nome da Sala</label>
+              <input type="text" class="form-control" id="sala-nome-{{ sala.id }}" name="nome" value="{{ sala.nome }}" required>
+            </div>
+            
+            <div class="mb-3">
+              <label for="sala-capacidade-{{ sala.id }}" class="form-label">Capacidade</label>
+              <input type="number" class="form-control" id="sala-capacidade-{{ sala.id }}" name="capacidade" value="{{ sala.capacidade }}" min="1" required>
+            </div>
+            
+            <div class="d-flex justify-content-end">
+              <button type="button" class="btn btn-secondary me-2" data-bs-dismiss="modal">Cancelar</button>
+              <button type="submit" class="btn btn-success">Salvar</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>

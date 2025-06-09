@@ -1,0 +1,206 @@
+<!--apps/filmes/templates/filmes/adicionarModal.html--> 
+<div
+  class="modal fade"
+  id="modalAdicionar"
+  tabindex="-1"
+  aria-labelledby="modalAdicionarLabel"
+  aria-hidden="true"
+  data-bs-backdrop="static"
+>
+  <div class="modal-dialog modal-dialog-scrollable modal-dialog-centered modal-xl">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="modalAdicionarLabel">
+          Adicionar Novo Filme
+        </h5>
+        <button
+          type="button"
+          class="btn-close"
+          data-bs-dismiss="modal"
+          aria-label="Close"
+        ></button>
+      </div>
+      <div class="modal-body">
+        <form class="row" method="POST" enctype="multipart/form-data">
+          {% csrf_token %}
+          
+          <div class="col-md-6">
+            <!-- Dados do Filme -->
+            <div class="form-group mb-3">
+              <label for="titulo">Título</label>
+              <input
+                type="text"
+                class="form-control {% if form.titulo.errors %}is-invalid{% endif %}"
+                id="titulo"
+                name="titulo"
+                value="{{ form.titulo.value|default:'' }}"
+                required
+              />
+              {% if form.titulo.errors %}
+                <div class="invalid-feedback">{{ form.titulo.errors|first }}</div>
+              {% endif %}
+            </div>
+
+            <div class="form-group mb-3">
+              <label for="diretor">Diretor</label>
+              <input
+                type="text"
+                class="form-control {% if form.diretor.errors %}is-invalid{% endif %}"
+                id="diretor"
+                name="diretor"
+                value="{{ form.diretor.value|default:'' }}"
+                required
+              />
+              {% if form.diretor.errors %}
+                <div class="invalid-feedback">{{ form.diretor.errors|first }}</div>
+              {% endif %}
+            </div>
+
+            <div class="form-group mb-3">
+              <label for="genero">Gênero</label>
+              <input
+                type="text"
+                class="form-control {% if form.genero.errors %}is-invalid{% endif %}"
+                id="genero"
+                name="genero"
+                value="{{ form.genero.value|default:'' }}"
+                required
+              />
+              {% if form.genero.errors %}
+                <div class="invalid-feedback">{{ form.genero.errors|first }}</div>
+              {% endif %}
+            </div>
+
+            <div class="form-group mb-3">
+              <label for="data_lancamento">Data de Lançamento</label>
+              <input
+                type="date"
+                class="form-control {% if form.data_lancamento.errors %}is-invalid{% endif %}"
+                id="data_lancamento"
+                name="data_lancamento"
+                value="{{ form.data_lancamento.value|date:'Y-m-d'|default:'' }}"
+                required
+              />
+              {% if form.data_lancamento.errors %}
+                <div class="invalid-feedback">{{ form.data_lancamento.errors|first }}</div>
+              {% endif %}
+            </div>
+
+            <div class="form-group mb-3">
+              <label for="duracao_minutos">Duração (minutos)</label>
+              <input
+                type="number"
+                class="form-control {% if form.duracao_minutos.errors %}is-invalid{% endif %}"
+                id="duracao_minutos"
+                name="duracao_minutos"
+                value="{{ form.duracao_minutos.value|default:'' }}"
+                required
+                min="1"
+              />
+              {% if form.duracao_minutos.errors %}
+                <div class="invalid-feedback">{{ form.duracao_minutos.errors|first }}</div>
+              {% endif %}
+            </div>
+
+            <div class="form-group mb-3">
+              <label for="classificacao">Classificação Indicativa</label>
+              <input
+                type="text"
+                class="form-control {% if form.classificacao.errors %}is-invalid{% endif %}"
+                id="classificacao"
+                name="classificacao"
+                value="{{ form.classificacao.value|default:'' }}"
+                required
+                placeholder="Ex: Livre, 10 anos, 12 anos, 14 anos, 16 anos, 18 anos"
+              />
+              {% if form.classificacao.errors %}
+                <div class="invalid-feedback">{{ form.classificacao.errors|first }}</div>
+              {% endif %}
+            </div>
+          </div>
+
+          <div class="col-md-6">
+            <div class="row">
+              <div class="col-12 mb-3">
+                <label for="site_oficial">Site Oficial</label>
+                <input
+                  type="url"
+                  class="form-control {% if form.site_oficial.errors %}is-invalid{% endif %}"
+                  id="site_oficial"
+                  name="site_oficial"
+                  value="{{ form.site_oficial.value|default:'' }}"
+                  placeholder="https://www.example.com"
+                />
+                {% if form.site_oficial.errors %}
+                  <div class="invalid-feedback">{{ form.site_oficial.errors|first }}</div>
+                {% endif %}
+              </div>
+
+              <div class="col-12 mb-3">
+                <label for="trailer_oficial_url">URL do Trailer Oficial</label>
+                <input
+                  type="url"
+                  class="form-control {% if form.trailer_oficial_url.errors %}is-invalid{% endif %}"
+                  id="trailer_oficial_url"
+                  name="trailer_oficial_url"
+                  value="{{ form.trailer_oficial_url.value|default:'' }}"
+                  placeholder="https://www.youtube.com/watch?v=xxxxx"
+                />
+                {% if form.trailer_oficial_url.errors %}
+                  <div class="invalid-feedback">{{ form.trailer_oficial_url.errors|first }}</div>
+                {% endif %}
+              </div>
+            </div>
+            
+            <div class="form-group mb-3">
+              <label for="sinopse">Sinopse</label>
+              <textarea
+                class="form-control {% if form.sinopse.errors %}is-invalid{% endif %}"
+                id="sinopse"
+                name="sinopse"
+                rows="5"
+                required
+              >{{ form.sinopse.value|default:'' }}</textarea>
+              {% if form.sinopse.errors %}
+                <div class="invalid-feedback">{{ form.sinopse.errors|first }}</div>
+              {% endif %}
+            </div>
+            
+            <div class="form-group mb-3">
+              <label for="poster">Poster do Filme</label>
+              <input
+                type="file"
+                class="form-control {% if form.poster.errors %}is-invalid{% endif %}"
+                id="poster"
+                name="poster"
+                accept="image/*"
+              />
+              {% if form.poster.errors %}
+                <div class="invalid-feedback">{{ form.poster.errors|first }}</div>
+              {% endif %}
+              
+              {% if form.instance.poster %}
+                <div class="mt-2">
+                  <img src="{{ form.instance.poster.url }}" class="img-thumbnail" alt="Poster do filme" style="max-height: 150px;">
+                </div>
+              {% endif %}
+            </div>
+          </div>
+
+          <div class="modal-footer mt-3">
+            <button
+              type="button"
+              class="btn btn-secondary btn-sm"
+              data-bs-dismiss="modal"
+            >
+              Fechar
+            </button>
+            <button type="submit" class="btn btn-success btn-sm">
+              Adicionar
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>

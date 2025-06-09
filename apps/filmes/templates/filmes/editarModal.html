@@ -1,0 +1,183 @@
+<!--apps/filmes/templates/filmes/editarModal.html-->
+<div
+  class="modal fade"
+  id="modalEditarFilme"
+  tabindex="-1"
+  aria-labelledby="modalEditarFilmeLabel"
+  aria-hidden="true"
+  data-bs-backdrop="static"
+>
+  <div class="modal-dialog modal-dialog-scrollable modal-dialog-centered modal-xl">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="modalEditarFilmeLabel">
+          Editar Dados do Filme
+        </h5>
+        <button
+          type="button"
+          class="btn-close"
+          data-bs-dismiss="modal"
+          aria-label="Close"
+        ></button>
+      </div>
+      <div class="modal-body">
+        <form class="row" method="POST" action="{% url 'filmes:editar' filme.pk %}" enctype="multipart/form-data">
+          {% csrf_token %}
+          
+          <div class="col-md-8">
+            <!-- Dados do Filme -->
+            <div class="row">
+              <div class="col-md-6">
+                <div class="form-group mb-3">
+                  <label for="titulo">Título</label>
+                  <input
+                    type="text"
+                    class="form-control"
+                    id="titulo"
+                    name="titulo"
+                    value="{{ filme.titulo }}"
+                    required
+                  />
+                </div>
+
+                <div class="form-group mb-3">
+                  <label for="diretor">Diretor</label>
+                  <input
+                    type="text"
+                    class="form-control"
+                    id="diretor"
+                    name="diretor"
+                    value="{{ filme.diretor }}"
+                    required
+                  />
+                </div>
+
+                <div class="form-group mb-3">
+                  <label for="duracao_minutos">Duração (minutos)</label>
+                  <input
+                    type="number"
+                    class="form-control"
+                    id="duracao_minutos"
+                    name="duracao_minutos"
+                    value="{{ filme.duracao_minutos }}"
+                    required
+                  />
+                </div>
+
+                <div class="form-group mb-3">
+                  <label for="classificacao">Classificação</label>
+                  <input
+                    type="text"
+                    class="form-control"
+                    id="classificacao"
+                    name="classificacao"
+                    value="{{ filme.classificacao }}"
+                    required
+                  />
+                </div>
+
+                <div class="form-group mb-3">
+                  <label for="genero">Gênero</label>
+                  <input
+                    type="text"
+                    class="form-control"
+                    id="genero"
+                    name="genero"
+                    value="{{ filme.genero }}"
+                    required
+                  />
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="form-group mb-3">
+                  <label for="data_lancamento">Data de Lançamento</label>
+                  <input
+                    type="date"
+                    class="form-control"
+                    id="data_lancamento"
+                    name="data_lancamento"
+                    value="{{ filme.data_lancamento|date:'Y-m-d' }}"
+                    required
+                  />
+                </div>
+
+                <div class="form-group mb-3">
+                  <label for="site_oficial">Site Oficial</label>
+                  <input
+                    type="url"
+                    class="form-control"
+                    id="site_oficial"
+                    name="site_oficial"
+                    value="{{ filme.site_oficial }}"
+                  />
+                </div>
+
+                <div class="form-group mb-3">
+                  <label for="trailer_oficial_url">Trailer Oficial URL</label>
+                  <input
+                    type="url"
+                    class="form-control"
+                    id="trailer_oficial_url"
+                    name="trailer_oficial_url"
+                    value="{{ filme.trailer_oficial_url }}"
+                  />
+                </div>
+              </div>
+            </div>
+
+            <div class="form-group mb-3">
+              <label for="sinopse">Sinopse</label>
+              <textarea
+                class="form-control"
+                id="sinopse"
+                name="sinopse"
+                rows="4"
+                required
+              >{{ filme.sinopse }}</textarea>
+            </div>
+          </div>
+          
+          <div class="col-md-4">
+            <!-- Poster do Filme -->
+            <div class="form-group mb-3">
+              <label for="poster">Poster</label>
+              <input
+                type="file"
+                class="form-control"
+                id="poster"
+                name="poster"
+                accept="image/*"
+              />
+            </div>
+            
+            {% if filme.poster %}
+              <div class="text-center mb-3">
+                <img src="{{ filme.poster.url }}" class="img-fluid rounded" style="max-height: 300px;" alt="Poster do filme">
+                <p class="text-muted mt-2"><small>Poster atual. Carregue uma nova imagem para substituir.</small></p>
+              </div>
+            {% else %}
+              <div class="text-center mb-3">
+                <div class="alert alert-info">
+                  <i class="fas fa-info-circle me-2"></i> Nenhum poster cadastrado
+                </div>
+              </div>
+            {% endif %}
+          </div>
+          
+          <div class="modal-footer mt-3">
+            <button
+              type="button"
+              class="btn btn-secondary"
+              data-bs-dismiss="modal"
+            >
+              Cancelar
+            </button>
+            <button type="submit" class="btn btn-success">
+              <i class="fas fa-save me-2"></i>Salvar Alterações
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>

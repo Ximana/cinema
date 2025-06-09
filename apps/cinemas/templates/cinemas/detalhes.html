@@ -1,0 +1,362 @@
+{% extends 'core/base.html' %}
+
+{% block title %}Detalhes do Cinema{% endblock %}
+
+{% block arquivos_css %}
+<style>
+    .nav-tabs .nav-link {
+        color: #198754;
+        border: none;
+        margin-right: 1rem;
+        padding: 0.8rem 1.5rem;
+        transition: all 0.3s ease;
+        border-radius: 0.5rem;
+    }
+    
+    .nav-tabs .nav-link:hover {
+        background-color: #e8f5e9;
+    }
+    
+    .nav-tabs .nav-link.active {
+        color: white;
+        background-color: #198754;
+        border: none;
+    }
+    
+    .cinema-image {
+        width: 150px;
+        height: 150px;
+        border-radius: 1rem;
+        object-fit: cover;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
+    
+    .cinema-card {
+        background: white;
+        border-radius: 1rem;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+        transition: all 0.3s ease;
+    }
+    
+    .cinema-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 16px rgba(0,0,0,0.1);
+    }
+    
+    .info-label {
+        color: #6c757d;
+        font-size: 0.9rem;
+    }
+    
+    .info-value {
+        color: #2c3e50;
+        font-weight: 500;
+    }
+    
+    .table-card {
+        border-radius: 0.8rem;
+        border: none;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    }
+    
+    .room-card {
+        border-radius: 1rem;
+        overflow: hidden;
+        border: none;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+        transition: all 0.3s ease;
+    }
+    
+    .room-card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 6px 16px rgba(0,0,0,0.12);
+    }
+
+    .session-card {
+        border-radius: 0.8rem;
+        background-color: white;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        transition: all 0.2s ease;
+    }
+    
+    .session-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
+    
+    .movie-thumb {
+        border-radius: 0.5rem;
+        width: 65px;
+        height: 90px;
+        object-fit: cover;
+    }
+
+    .badge-3d {
+        background-color: #dc3545;
+    }
+    
+    .badge-2d {
+        background-color: #198754;
+    }
+    
+    .badge-imax {
+        background-color: #6f42c1;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <!-- Cinema Header -->
+    <div class="cinema-card p-4 mb-4">
+        <div class="row align-items-center">
+            <div class="col-md-2 text-center">
+                <div class="cinema-image d-flex align-items-center justify-content-center bg-light">
+                    <i class="fas fa-film fa-3x text-muted"></i>
+                </div>
+            </div>
+            <div class="col-md-8">
+                <h2 class="text-success mb-1">{{ cinema.nome }}</h2>
+                <p class="text-muted mb-2">{{ cinema.localizacao }}</p>
+                <div class="d-flex gap-3">
+                    <span class="badge bg-success">{{ salas.count }} Salas</span>
+                    <span class="badge bg-success">{{ sessoes.count }} Sessões</span>
+                </div>
+            </div>
+            <div class="col-md-2 text-end">
+                <button type="button" data-bs-toggle="modal" data-bs-target="#modalEditarCinema" 
+                        class="btn btn-outline-success">
+                    <i class="fas fa-edit me-2"></i>Editar
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tabs -->
+    <ul class="nav nav-tabs border-0 mb-4" id="cinemaTabs" role="tablist">
+        <li class="nav-item" role="presentation">
+            <button class="nav-link active" id="details-tab" data-bs-toggle="tab" 
+                    data-bs-target="#details" type="button" role="tab">
+                <i class="fas fa-info-circle me-2"></i>Detalhes
+            </button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" id="salas-tab" data-bs-toggle="tab" 
+                    data-bs-target="#salas" type="button" role="tab">
+                <i class="fas fa-door-open me-2"></i>Salas
+            </button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" id="sessoes-tab" data-bs-toggle="tab" 
+                    data-bs-target="#sessoes" type="button" role="tab">
+                <i class="fas fa-film me-2"></i>Sessões
+            </button>
+        </li>
+    </ul>
+
+    <div class="tab-content" id="cinemaTabsContent">
+        <!-- Detalhes do Cinema -->
+        <div class="tab-pane fade show active" id="details" role="tabpanel">
+            <div class="cinema-card p-4">
+                <div class="row g-4">
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <div class="info-label">Nome do Cinema</div>
+                            <div class="info-value">{{ cinema.nome }}</div>
+                        </div>
+                        <div class="mb-3">
+                            <div class="info-label">Localização</div>
+                            <div class="info-value">{{ cinema.localizacao }}</div>
+                        </div>
+                        <div class="mb-3">
+                            <div class="info-label">Telefone</div>
+                            <div class="info-value">{{ cinema.telefone }}</div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <div class="info-label">Total de Salas</div>
+                            <div class="info-value">{{ salas.count }}</div>
+                        </div>
+                        <div class="mb-3">
+                            <div class="info-label">Sessões Agendadas</div>
+                            <div class="info-value">{{ sessoes.count }}</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Salas -->
+        <div class="tab-pane fade" id="salas" role="tabpanel">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h4 class="text-success mb-0">Salas do Cinema</h4>
+                <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#modalAdicionarSala">
+                    <i class="fas fa-plus me-2"></i>Adicionar Sala
+                </button>
+            </div>
+            
+            <div class="row g-4">
+                {% for sala in salas %}
+                <div class="col-md-4">
+                  <div class="room-card">
+                      <div class="p-4">
+                          <div class="d-flex justify-content-between align-items-center mb-3">
+                              <h5 class="text-success mb-0">{{ sala.nome }}</h5>
+                              <span class="badge bg-success">{{ sala.capacidade }} lugares</span>
+                          </div>
+                          
+                          <div class="d-flex justify-content-between mt-4">
+                              <div class="btn-group">
+                                  <button class="btn btn-outline-success btn-sm" 
+                                          data-bs-toggle="modal" 
+                                          data-bs-target="#modalEditarSala{{ sala.id }}">
+                                      <i class="fas fa-edit me-1"></i>Editar
+                                  </button>
+                                  <button class="btn btn-outline-danger btn-sm" 
+                                          data-bs-toggle="modal" 
+                                          data-bs-target="#modalRemoverSala{{ sala.id }}">
+                                      <i class="fas fa-trash me-1"></i>Remover
+                                  </button>
+                              </div>
+                          </div>
+                      </div>
+                  </div>
+              </div>
+                {% empty %}
+                <div class="col-12 text-center py-5">
+                    <i class="fas fa-door-closed text-muted fa-3x mb-3"></i>
+                    <p class="text-muted">Nenhuma sala cadastrada para este cinema.</p>
+                    <button class="btn btn-success mt-2" data-bs-toggle="modal" data-bs-target="#modalAdicionarSala">
+                        <i class="fas fa-plus me-2"></i>Adicionar Primeira Sala
+                    </button>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- Sessões -->
+        <div class="tab-pane fade" id="sessoes" role="tabpanel">
+            <div class="table-card">
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead class="table-success">
+                            <tr>
+                                <th>Filme</th>
+                                <th>Sala</th>
+                                <th>Data/Hora</th>
+                                <th>Tipo</th>
+                                <th>Idioma</th>
+                                <th>Preço Base</th>
+                                <th>Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for sessao in sessoes %}
+                            <tr>
+                                <td class="align-middle">
+                                    <div class="d-flex align-items-center">
+                                        {% if sessao.filme.poster %}
+                                            <img src="{{ sessao.filme.poster.url }}" class="movie-thumb me-2" alt="{{ sessao.filme.titulo }}">
+                                        {% else %}
+                                            <div class="movie-thumb me-2 bg-light d-flex align-items-center justify-content-center">
+                                                <i class="fas fa-film text-muted"></i>
+                                            </div>
+                                        {% endif %}
+                                        <div>
+                                            <strong>{{ sessao.filme.titulo }}</strong>
+                                            <div class="text-muted small">{{ sessao.filme.duracao_minutos }} min</div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td class="align-middle">{{ sessao.sala.nome }}</td>
+                                <td class="align-middle">{{ sessao.horario|date:"d/m/Y H:i" }}</td>
+                                <td class="align-middle">
+                                    <span class="badge badge-{{ sessao.tipo }}">{{ sessao.get_tipo_display }}</span>
+                                </td>
+                                <td class="align-middle">{{ sessao.get_idioma_display }}</td>
+                                <td class="align-middle">{{ sessao.preco_base }} Kz</td>
+                                <td class="align-middle">
+                                    <a href="{{ sessao.get_absolute_url }}" 
+                                       class="btn btn-outline-success btn-sm rounded-circle"
+                                       data-bs-toggle="tooltip"
+                                       data-bs-placement="top"
+                                       title="Ver detalhes">
+                                        <i class="fas fa-eye"></i>
+                                    </a>
+                                </td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="7" class="text-center py-4">
+                                    <i class="fas fa-film text-muted fa-2x mb-3"></i>
+                                    <p class="text-muted">Nenhuma sessão agendada para este cinema.</p>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modais de Edição e Remoção de Salas -->
+{% for sala in salas %}
+  <!-- Modal Editar Sala -->
+  {% include 'cinemas/sala/editarSalaModal.html' %}
+
+  <!-- Modal Remover Sala -->
+  {% include 'cinemas/sala/removerSalaModal.html' %}
+{% endfor %}
+
+<!-- Modal adicionar Sala -->
+{% include 'cinemas/sala/adicionarSalaModal.html' %}
+
+<!-- Modal Editar Cinema -->
+{% include 'cinemas/editarModal.html' %}
+
+{% endblock %}
+
+{% block scriptJS %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Manter a aba ativa após o recarregamento
+        const activeTab = localStorage.getItem('activeCinemaTab');
+        if (activeTab) {
+            const tabTrigger = document.querySelector(`[data-bs-target="${activeTab}"]`);
+            if (tabTrigger) {
+                tabTrigger.click();
+            }
+        }
+        
+        // Salvar a aba ativa quando o usuário clicar em uma aba
+        const tabs = document.querySelectorAll('button[data-bs-toggle="tab"]');
+        tabs.forEach(tab => {
+            tab.addEventListener('shown.bs.tab', function(event) {
+                localStorage.setItem('activeCinemaTab', event.target.getAttribute('data-bs-target'));
+            });
+        });
+        
+        // Inicializar tooltips
+        const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+        tooltipTriggerList.map(function (tooltipTriggerEl) {
+            return new bootstrap.Tooltip(tooltipTriggerEl);
+        });
+    });
+    
+    // Verificar o formulário de edição do cinema
+    document.getElementById('formEditarCinema').addEventListener('submit', function(event) {
+        const form = event.target;
+        if (form.checkValidity()) {
+            console.log('Formulário válido, enviando...');
+        } else {
+            event.preventDefault();
+            event.stopPropagation();
+            console.log('Formulário inválido');
+        }
+        form.classList.add('was-validated');
+    });
+</script>
+{% endblock %}

@@ -1,0 +1,55 @@
+# Arquivos Python compilados
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Ambiente virtual
+venv/
+env/
+ENV/
+
+# Arquivos de configuração sensíveis
+.env
+*.env
+
+# Arquivos de banco de dados locais (caso uses SQLite em desenvolvimento)
+*.sqlite3
+
+# Arquivos de log
+*.log
+
+# Diretórios Django
+/media/
+
+# Configuração do sistema operacional
+.DS_Store
+Thumbs.db
+
+# Cache de IDEs e editores
+.vscode/
+.idea/
+
+# Testes e relatórios temporários
+coverage/
+htmlcov/
+*.cover
+*.py,cover
+.cache
+nosetests.xml
+coverage.xml
+*.orig
+
+# Arquivos do pytest
+.pytest_cache/
+
+# Arquivos de build (caso use front-end no mesmo repo)
+build/
+dist/
+*.egg-info/
+
+# Arquivos gerados por colectstatic
+staticfiles/
+
+# Arquivos temporários do editor ou sistema
+*.swp
+*~
