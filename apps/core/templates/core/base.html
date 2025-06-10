@@ -128,37 +128,47 @@
         <!-- Mobile Menu -->
 <div class="offcanvas offcanvas-start" tabindex="-1" id="offcanvasMenu">
   <div class="offcanvas-header border-bottom border-secondary">
-    <a href="{% comment %}{% url 'home' %}{% endcomment %}">
-      <img src="{% static 'core/img/logo.png'%}" alt="Logo" height="40">
-    </a>
+    <a class="text-decoration-none text-white" href="{% url 'core:home' %}">
+            {% comment %} <img src="{% static 'core/img/logo.png'%}" alt="Logo" height="40">{% endcomment %}
+            <h1 class="h4 ">Dashboard</h1>
+        </a>
     <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
   </div>
   <div class="offcanvas-body">
     <ul class="nav flex-column mt-3">
         
       <li class="nav-item">
-        <a class="nav-link" href="{% comment %}{% url 'pacientes:lista' %}{% endcomment %}">
-          <i class="fas fa-user-injured me-2"></i>Produtos
-        </a>
-      </li>
-      <li class="nav-item">
-        <a class="nav-link" href="{% comment %}{% url 'deteccoes:lista' %}{% endcomment %}">
-          <i class="fas fa-microscope me-2"></i>Pedidos
-        </a>
-      </li>
-      
-        <li class="nav-item">
-            <a class="nav-link" href="{% comment %}{% url 'usuarios:lista' %}{% endcomment %}">
-            <i class="fas fa-users me-2"></i>Usuários
+            <a class="nav-link" href="{% url 'filmes:lista' %}">
+              <i class="fas fa-user-injured"></i>Filmes
             </a>
-        </li>
-        
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="{% url 'cinemas:lista' %}">
+              <i class="fas fa-trademark"></i>Cinemas
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="{% url 'sessoes:lista' %}">
+              <i class="fas fa-microscope"></i>Sessões
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="{% url 'reservas:lista' %}">
+              <i class="fas fa-microscope"></i>Reservas
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="{% url 'usuarios:lista' %}">
+              <i class="fas fa-users"></i>Usuários
+            </a>
+          </li>
+          
 
-      <li class="nav-item mt-4">
-        <a class="nav-link text-danger" href="{% comment %}{% url 'administracao:logout' %}{% endcomment %}">
-          <i class="fas fa-sign-out-alt me-2"></i>Sair
-        </a>
-      </li>
+          <li class="nav-item mt-4">
+            <a class="nav-link text-danger" href="{% url 'usuarios:logout' %}">
+              <i class="fas fa-sign-out-alt"></i>Sair
+            </a>
+          </li>
     </ul>
   </div>
 </div>
