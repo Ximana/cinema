@@ -13,11 +13,11 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = config('SECRET_KEY', default='django-insecure-^-6ah+(wse+(!c#)xk9^(us%dc&(5w3*%zf_2hr^002t-vxvn5')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = config('DEBUG', default=False, cast=bool)
+DEBUG = config('DEBUG', default=True, cast=bool)
 
 #ALLOWED_HOSTS = config('ALLOWED_HOSTS', default='*').split(',')
 #ALLOWED_HOSTS = ['127.0.0.1']
-ALLOWED_HOSTS = ['.onrender.com']
+ALLOWED_HOSTS = ['.onrender.com', '127.0.0.1']
 
 # Configuração do Cloudinary 
 
