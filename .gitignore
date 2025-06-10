@@ -48,7 +48,7 @@ dist/
 *.egg-info/
 
 # Arquivos gerados por colectstatic
-staticfiles/
+# staticfiles/ - comentamos porque criei esse diretorio manualmente
 
 # Arquivos temporários do editor ou sistema
 *.swp
