@@ -32,7 +32,7 @@ Projeto web desenvolvido com **Django** e banco de dados **PostgreSQL** (hospeda
 
 ```bash
 git clone https://github.com/ximana/cinema.git
-cd seu-repositorio
+cd cinema
 ````
 
 2. **Crie um ambiente virtual e ative**
@@ -62,7 +62,6 @@ CLOUDINARY_API_SECRET=xxxxxx
 # Django Configuration
 SECRET_KEY=sua_secret_key_aqui
 DEBUG=True
-ALLOWED_HOSTS=localhost,127.0.0.1
 
 # Base de dados
 DATABASE_URL = "postgresql://xxxxxx"
@@ -71,6 +70,7 @@ DATABASE_URL = "postgresql://xxxxxx"
 5. **Aplique as migrações e rode o servidor**
 
 ```bash
+python manage.py makemigrations
 python manage.py migrate
 python manage.py runserver
 ```
@@ -90,16 +90,39 @@ Authorization: Token seu_token_aqui
 ## Endpoints da API
 
 Alguns endpoints disponíveis:
+### Endpoints de Usuarios
 
-| Método | Endpoint                             | Descrição                     |
-| ------ | ------------------------------------ | ----------------------------- |
-| POST   | /api/usuarios/registro/              | Registro de usuário           |
-| POST   | /api/usuarios/login/                 | Login e obtenção de token     |
-| GET    | /api/usuarios/meu-perfil/            | Ver perfil do usuário         |
-| POST   | /api/reservas/reservas/              | Criar nova reserva            |
-| GET    | /api/reservas/reservas/              | Listar reservas do usuário    |
-| PATCH  | /api/reservas/{id}/update\_status/   | Atualizar status da reserva   |
-| GET    | /api/reservas/reservas/estatisticas/ | Ver estatísticas das reservas |
+| Método |                 Endpoint                      |            Descrição                                  |
+| ------ | --------------------------------------------- | ---------------------------------------------------------------------- |
+| POST   | /api/usuarios/registro/                       | Registro de usuário                                                    |
+| POST   | /api/usuarios/login/                          | Login e obtenção de token                                              |
+| POST   | /api/usuarios/logout/                         | Invalida o token do usuário                                            |
+| GET    | /api/usuarios/meu-perfil/                     | Ver perfil do usuário                                                  |
+
+
+### Endpoints de Filmes
+| Método |                 Endpoint                      |            Descrição                                  |
+| ------ | --------------------------------------------- | ---------------------------------------------------------------------- |
+| GET    | /api/filmes/filmes/                           | Lista os filmes com sessões disponíveis                                |
+| GET    | /api/filmes/filmes/{id}/                      | Retorna informações detalhadas de um filme                             |
+| GET    | /api/filmes/filmes/{id}/sessoes/              | Retorna detalhes do filme com todas as suas sessões disponíveis        |
+| GET    | /api/filmes/filmes/por-genero/{genero}/       | Lista filmes de um gênero específico                                   |
+| GET    | /api/filmes/filmes/por-cinema/{cinema_id}/    | Lista filmes disponíveis em um cinema específico                       |
+| GET    | /api/filmes/generos/                          | Retorna lista de gêneros de filmes com sessões disponíveis             |
+| GET    | /api/filmes/filmes-com-sessoes/               | Lista simples de filmes com sessões disponíveis                        |
+
+
+### Endpoints de Sessões e Reservas
+| Método |                 Endpoint                      |            Descrição                                  |
+| ------ | --------------------------------------------- | ---------------------------------------------------------------------- |
+| GET    | /api/filmes/filmes-com-sessoes/               | Lista simples de filmes com sessões disponíveis                        |
+| GET    | /api/reservas/minhas-reservas/                | Retorna todas as reservas do usuário, ordenadas por data (mais recentes|
+| POST   | /api/reservas/minhas-reservas/                | Cria uma nova reserva para o usuário autenticado                       |
+| GET    | /api/reservas/minhas-reservas/{id}/           | Retorna os detalhes completos de uma reserva específica                |
+| POST   | /api/reservas/minhas-reservas/{id}/cancelar/  | Cancela uma reserva específica. Até 2 horas antes da sessão            |
+| POST   | /api/reservas/minhas-reservas/{id}/confirmar/ | Confirma o pagamento de uma reserva pendente                           |
+| DELETE | /api/reservas/minhas-reservas/{id}/           | Ver estatísticas das reservas                                          |
+| GET    | /api/reservas/minhas-reservas/historico/      | Retorna o histórico completo de reservas com filtros opcionais         |
 
 
 
